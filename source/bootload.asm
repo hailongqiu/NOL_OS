@@ -9,8 +9,8 @@
 
     jmp short bootloader_start
     nop
-; FAT12 文件格式头, 暂不支持NTFS. 
-; 引导扇区需要bpb等头信息才能被识别.
+; FAT12 文件格式头, 暂不支持NTFS. http://blog.csdn.net/zzz3265/article/details/5723087
+; 引导扇区需要bpb等头信息才能被识别. 不然U盘等移动设备插上去就费了.
 ; 才能够根据FAT12文件格式来扫描移动设备加载我们的内核名.
 
 volume_id     db 0x00000000
