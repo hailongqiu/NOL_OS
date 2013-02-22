@@ -1,0 +1,1242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>FAT12文件格式 - sy198704 - ITeye技术网站</title>
+    <meta name="description" content="F AT12是DOS时代就开始使用的文件系统（File System），直到现在仍然在软盘上使用。几乎所有的文件系统都会把磁盘划分为若干层次以方便管理和组织，这� ...">
+    <meta name="keywords" content="DOS, Go, 单元测试, F# FAT12文件格式">
+    <link rel="shortcut icon" href="http://sy198704.iteye.com/images/favicon.ico" type="image/x-icon">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://sy198704.iteye.com/open_search.xml" title="ITeye">
+    <link href="http://sy198704.iteye.com/rss" rel="alternate" title="sy198704" type="application/rss+xml">
+    <link href="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/blog.css" media="screen" rel="stylesheet" type="text/css">
+<link href="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/white.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/ga.js" async="" type="text/javascript"></script><script src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/application.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/shCoreCommon.js" type="text/javascript"></script>
+<script src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/hotkey.js" type="text/javascript"></script>
+  <script src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/code_favorites.js" type="text/javascript"></script>
+<script src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/weiboshare.js" type="text/javascript"></script>
+  <style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style></head>
+  <body>
+    <div id="header">
+      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">招聘</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+      <div id="user_nav">
+      <a href="http://sy198704.iteye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://sy198704.iteye.com/login">登录</a>
+    <a href="http://sy198704.iteye.com/signup" class="nobg">注册</a>
+  </div>
+
+    </div>
+
+    <div id="page">
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="http://sy198704.iteye.com/">sy198704</a></h1>
+        </div>
+        <div id="fd"></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class="blog_navbar_for"><a href="http://sy198704.iteye.com/"><strong>博客</strong></a></li>
+            <li><a href="http://sy198704.iteye.com/weibo">微博</a></li>
+            <li><a href="http://sy198704.iteye.com/album">相册</a></li>
+            <li><a href="http://sy198704.iteye.com/link">收藏</a></li>
+            <li><a href="http://sy198704.iteye.com/blog/guest_book">留言</a></li>
+            <li><a href="http://sy198704.iteye.com/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px; width: 110px;" type="text">
+              <input class="submit_search" value="" type="submit">
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="http://sy198704.iteye.com/blog/1000764">FAT12文件格式</a>
+      <em class="actions">      </em>
+    </h3>
+    <ul class="blog_categories"><strong>博客分类：</strong> <li><a href="http://sy198704.iteye.com/category/152431">操作系统</a></li> </ul>
+        <div class="news_tag"><a href="http://www.iteye.com/blogs/tag/DOS">DOS</a><a href="http://www.iteye.com/blogs/tag/Go">Go</a><a href="http://www.iteye.com/blogs/tag/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95">单元测试</a><a href="http://www.iteye.com/blogs/tag/F%23">F#</a>&nbsp;</div>
+  </div>
+
+  <div id="blog_content" class="blog_content">
+    <p><span style="font-size: medium;">F</span> <span style="font-size: medium;">AT12是DOS时代就开始使用的文件系统（File System），直到现在仍然在软盘上使用。几乎所有的文件系统都会把磁盘划分为若干层次以方便管理和组织，这些层次主要包括：</span> </p>
+<ul>
+<li>
+<span style="font-size: medium;">扇区(Sector)：磁盘上的最小数据单元</span> </li>
+<li>
+<span style="font-size: medium;">簇(Cluster)：一个或多个扇区</span> </li>
+<li>
+<span style="font-size: medium;">分区(Partition)：通常是指整个文件系统</span> </li>
+</ul>
+<p><span style="font-size: medium;">下面是FAT12格式的软盘存储图：</span> </p>
+<p><span style="font-size: medium;">&nbsp;</span> </p>
+<p><span style="font-size: medium;">&nbsp;<img alt="FAT12" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/9f043ba9-5ae1-3b16-a709-b2a3a05e8d8d.jpg" height="281" width="216"></span> </p>
+<p>&nbsp;<span style="font-size: medium;"><strong>FAT12引导扇区的格式</strong> </span></p>
+<p>&nbsp;</p>
+<table class="quote_div" border="0">
+<tbody><tr>
+<td>名称</td>
+<td>偏移</td>
+<td>长度</td>
+<td>内容</td>
+<td>示例值</td>
+</tr>
+<tr>
+<td>BS_jmpBoot</td>
+<td>0</td>
+<td>3</td>
+<td>一个跳转指令</td>
+<td>
+<p>jmp LABEL_START</p>
+<p>nop</p>
+</td>
+</tr>
+<tr>
+<td>BS_OEMNane</td>
+<td>3</td>
+<td>8</td>
+<td>厂商名</td>
+<td>'ForrestY'</td>
+</tr>
+<tr>
+<td>BPB_BytePerSec</td>
+<td>11</td>
+<td>2</td>
+<td>每扇区字节数</td>
+<td>0x200</td>
+</tr>
+<tr>
+<td>BPB_SecPerClus</td>
+<td>13</td>
+<td>1</td>
+<td>每簇扇区数</td>
+<td>0x1</td>
+</tr>
+<tr>
+<td>BPB_RsvdSecCnt</td>
+<td>14</td>
+<td>2</td>
+<td>Boot记录占用多少扇区</td>
+<td>0x1</td>
+</tr>
+<tr>
+<td>BPB_NumFATs</td>
+<td>16</td>
+<td>1</td>
+<td>共有多少FAT表</td>
+<td>0x2</td>
+</tr>
+<tr>
+<td>BPB_RootEntCnt</td>
+<td>17</td>
+<td>2</td>
+<td>根目录文件数最大值</td>
+<td>0xE0</td>
+</tr>
+<tr>
+<td>BPB_TotSec16</td>
+<td>19</td>
+<td>2</td>
+<td>扇区总数</td>
+<td>0xB40</td>
+</tr>
+<tr>
+<td>BPB_Media</td>
+<td>21</td>
+<td>1</td>
+<td>介质描述符</td>
+<td>0xF0</td>
+</tr>
+<tr>
+<td>BPB_FATSz16</td>
+<td>22</td>
+<td>2</td>
+<td>每FAT扇区数</td>
+<td>0x9</td>
+</tr>
+<tr>
+<td>BPB_SecPerTrk</td>
+<td>24</td>
+<td>2</td>
+<td>每磁道扇区数</td>
+<td>0x12</td>
+</tr>
+<tr>
+<td>BPB_Numheads</td>
+<td>26</td>
+<td>2</td>
+<td>磁头数(面数)</td>
+<td>0x2</td>
+</tr>
+<tr>
+<td>BPB_HiddSec</td>
+<td>28</td>
+<td>4</td>
+<td>隐藏扇区数</td>
+<td>0</td>
+</tr>
+<tr>
+<td>BPB_TotSec32</td>
+<td>32</td>
+<td>4</td>
+<td>如果BPB_TotSec16是0，由这个值记录扇区数</td>
+<td>0</td>
+</tr>
+<tr>
+<td>BS_DrvNum</td>
+<td>36</td>
+<td>1</td>
+<td>中断13的驱动器号</td>
+<td>0</td>
+</tr>
+<tr>
+<td>BS_Reserved1</td>
+<td>37</td>
+<td>1</td>
+<td>未使用</td>
+<td>0</td>
+</tr>
+<tr>
+<td>BS_BootSig</td>
+<td>38</td>
+<td>1</td>
+<td>扩展引用标记(29h)</td>
+<td>0x29</td>
+</tr>
+<tr>
+<td>BS_VolID</td>
+<td>39</td>
+<td>4</td>
+<td>卷序列号</td>
+<td>0</td>
+</tr>
+<tr>
+<td>BS_VolLab</td>
+<td>43</td>
+<td>11</td>
+<td>卷标</td>
+<td>'OrangesS0.02'</td>
+</tr>
+<tr>
+<td>BS_FileSysType</td>
+<td>54</td>
+<td>8</td>
+<td>文件系统类型</td>
+<td>'FAT12'</td>
+</tr>
+<tr>
+<td>引导代码及其他</td>
+<td>62</td>
+<td>448</td>
+<td>引导代码、数据及其他填充字符等</td>
+<td>引导代码(其余为0)</td>
+</tr>
+<tr>
+<td>结束标志</td>
+<td>510</td>
+<td>2</td>
+<td>0xAA55</td>
+<td>0xAA55</td>
+</tr>
+<tr>
+<td><br></td>
+<td><br></td>
+<td><br></td>
+<td><br></td>
+<td><br></td>
+</tr>
+</tbody></table>
+<p>&nbsp;</p>
+<p><span style="font-size: medium;"><strong>FAT表</strong> </span></p>
+<p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+FAT表占1-18扇区，共两个FAT表，FAT1和FAT2,一般FAT2不用，FAT2仅是FAT1的拷贝，每个FAT表占9个分区，即 
+(512*9=4608)字节，FAT表由FAT项组成，每个FAT项占12位，共3072个FAT项，去掉两个不用的FAT的项(0和1，这是因为数据
+区的簇号是从2开始的0和1不用，故对应的FAT表中的0和1也不用)，故FAT12功能管理3070个簇区即 
+(1.499M*BPB_SecPerClus，这里是1.499M)的大小。</span> </p>
+<p><img alt="" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/ffddc9fe-1382-36c8-b84a-2699683cc3ac.jpg" height="107" width="282"></p>
+<p>&nbsp;</p>
+<p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 
+要注意的是，由于每个FAT项占12位，包含一个字节和另一个字节的一半。如上图所示连续的3个字节表示两个FAT项，BYTE1是Fat 
+Entry1的低8位，BYTE2的低4位是Fat Entry1的高4位，BYTE2的高4位是Fat Entry2的低4位，BYTE3是Fat 
+Entry2的高8位。</span> </p>
+<p>&nbsp;</p>
+<p><span style="font-size: medium;">下面介绍<strong>根目录：</strong> </span></p>
+<p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 
+仅跟FAT表的是根目录，从第19个分区开始，它是由若干个目录条目(Directory 
+Entry)组成，条目最多有BPB_RootEntCnt个。由于根目录区的大小依赖于BPB_RootEntCnt的大小，所以长度不固定。 </span></p>
+<p><span style="font-size: medium;">根目录中的每一个条目占用32字节，它的格式如下表所示： </span></p>
+<p>&nbsp;</p>
+<table border="1">
+<tbody><tr>
+<td>
+<span style="font-size: xx-small;">名称</span> </td>
+<td>
+<span style="font-size: xx-small;">开始字节</span> </td>
+<td>
+<span style="font-size: xx-small;">长度</span> </td>
+<td>
+<span style="font-size: xx-small;">内容</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">DIR_Name</span> </td>
+<td>
+<span style="font-size: xx-small;">0</span> </td>
+<td>
+<span style="font-size: xx-small;">0xB</span> </td>
+<td>
+<span style="font-size: xx-small;">文件名8字节，扩展名3字节</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">DIR_Attr</span> </td>
+<td>
+<span style="font-size: xx-small;">0xB</span> </td>
+<td>
+<span style="font-size: xx-small;">1</span> </td>
+<td>
+<span style="font-size: xx-small;">文件属性</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">保留位</span> </td>
+<td>
+<span style="font-size: xx-small;">0xC</span> </td>
+<td>
+<span style="font-size: xx-small;">10</span> </td>
+<td>
+<span style="font-size: xx-small;">保留</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">DIR_WrtTime</span> </td>
+<td>
+<span style="font-size: xx-small;">0x16</span> </td>
+<td>
+<span style="font-size: xx-small;">2</span> </td>
+<td>
+<span style="font-size: xx-small;">最后一次写入的时间</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">DIR_WrtDate</span> </td>
+<td>
+<span style="font-size: xx-small;">0x18</span> </td>
+<td>
+<span style="font-size: xx-small;">2</span> </td>
+<td>
+<span style="font-size: xx-small;">最后一次写入的日期</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">DIR_FstClus</span> </td>
+<td>
+<span style="font-size: xx-small;">0x1A</span> </td>
+<td>
+<span style="font-size: xx-small;">2</span> </td>
+<td>
+<span style="font-size: xx-small;">此文件在数据区和FAT表中的开始簇号</span> </td>
+</tr>
+<tr>
+<td>
+<span style="font-size: xx-small;">DIR_FileSize</span> </td>
+<td>
+<span style="font-size: xx-small;">0x1C</span> </td>
+<td>
+<span style="font-size: xx-small;">4</span> </td>
+<td>
+<span style="font-size: xx-small;">文件大小</span> </td>
+</tr>
+</tbody></table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><span style="background-color: #ffffff; color: #000000; font-size: medium;"><strong>数据区</strong> </span></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size: medium;">需要注意的是数据区的第一个簇号是2，而不是0或者1，(簇号和扇区号在这里是一样的，因为一簇只有一个扇区)，假设根目录区共占有RootDirSectors个扇区，则有：</span> </p>
+<p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; RootDirSectors =[ (BPB_RootEntCnt*32)+(BPB_BytesPerSec-1)]/BPB_BytsPerSec</span> </p>
+<p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; 只所以分子上要加上(BPB_BytesPerSec-1)，是为了保证此公式在根目录区无法填满整数个扇区时仍然成立。</span> </p>
+<p><span style="font-size: medium;"><strong>DOS可以识别的引导盘</strong> </span></p>
+<p><span style="font-size: medium;">
+</span></p><div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%3B%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%0Ajmp%20short%20LABEL_START%0Anop%09%09%09%09%20%20%20%09%3B%E5%BF%85%E4%B8%8D%E5%8F%AF%E5%B0%91%E7%9A%84%0A%3B**%E4%BB%A5%E4%B8%8B%E6%98%AFFAT12%E7%9A%84%E7%A3%81%E7%9B%98%E5%A4%B4%E7%9A%84%E5%AE%9A%E4%B9%89************%0ABS_OEMName%09DB%20'SongYang'%09%09%3BOEM%20String%2C%20%E5%BF%85%E9%A1%BB%208%20%E4%B8%AA%E5%AD%97%E8%8A%82%0A%0ABSB_BytePerSec%09DW%20512%09%09%09%3B%E6%AF%8F%E6%89%87%E5%8C%BA%E5%AD%97%E8%8A%82%E6%95%B0%0ABSP_SecPerClus%09Db%201%09%09%09%3B%E6%AF%8F%E7%B0%87%E5%A4%9A%E5%B0%91%E6%89%87%E5%8C%BA%0ABPB_RsvdSecCnt%09DW%201%09%09%09%3BBoot%20%E8%AE%B0%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E5%B0%91%E6%89%87%E5%8C%BA%0ABSP_NumFats%09DB%202%09%09%09%3B%E5%85%B1%E6%9C%89%E5%A4%9A%E5%B0%91%20FAT%20%E8%A1%A8%0ABSP_RootEntCnt%09DW%20224%09%09%09%3B%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%96%87%E4%BB%B6%E6%95%B0%E6%9C%80%E5%A4%A7%E5%80%BC%0ABSP_TotSec16%09DW%202880%09%09%09%3B%E9%80%BB%E8%BE%91%E6%89%87%E5%8C%BA%E6%80%BB%E6%95%B0%0ABPB_Media%09DB%200xF0%09%09%09%3B%E5%AA%92%E4%BD%93%E6%8F%8F%E8%BF%B0%E7%AC%A6%0ABPB_FATSz16%09DW%209%09%09%09%3B%E6%AF%8FFAT%E6%89%87%E5%8C%BA%E6%95%B0%0ABPB_SecPerTrk%09DW%2018%09%09%09%3B%E6%AF%8F%E7%A3%81%E9%81%93%E6%89%87%E5%8C%BA%E6%95%B0%0ABPB_NumHeads%09DW%202%09%09%09%3B%E7%A3%81%E5%A4%B4%E6%95%B0(%E9%9D%A2%E6%95%B0)%0ABPB_HiddSec%09DD%200%09%09%09%3B%E9%9A%90%E8%97%8F%E6%89%87%E5%8C%BA%E6%95%B0%0ABPB_TotSec32%09DD%200%09%09%09%3B%E5%A6%82%E6%9E%9C%20wTotalSectorCount%20%E6%98%AF0%E7%94%B1%E8%BF%99%E4%B8%AA%E5%80%BC%E8%AE%B0%E5%BD%95%0A%09%09%09%09%09%3B%E6%89%87%E5%8C%BA%E6%95%B0%0A%0ABS_DrvNum%09DB%200%09%09%09%3B%E4%B8%AD%E6%96%AD%2013%20%E7%9A%84%E9%A9%B1%E5%8A%A8%E5%99%A8%E5%8F%B7%0ABS_Reserved1%09DB%200%09%09%09%3B%E6%9C%AA%E4%BD%BF%E7%94%A8%0ABS_BootSig%09DB%2029h%09%09%09%3B%E6%89%A9%E5%B1%95%E5%BC%95%E5%AF%BC%E6%A0%87%E8%AE%B0%20(29h)%0ABS_VolID%09DD%200%09%09%09%3B%E5%8D%B7%E5%BA%8F%E5%88%97%E5%8F%B7%0ABS_Volab%09DB%20'Tinix0.01%20%20'%09%3B%E5%8D%B7%E6%A0%87%2C%20%E5%BF%85%E9%A1%BB%2011%20%E4%B8%AA%E5%AD%97%E8%8A%82%0ABS_FileSysType%09DB%20'FAT12%20%20%20'%09%09%3B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%2C%20%E5%BF%85%E9%A1%BB%208%E4%B8%AA%E5%AD%97%E8%8A%82%0A%0ALABEL_START%3A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>;===============================================================================&nbsp;&nbsp;</span></span></li><li><span>jmp&nbsp;short&nbsp;LABEL_START&nbsp;&nbsp;</span></li><li><span>nop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;必不可少的&nbsp;&nbsp;</span></li><li><span>;**以下是FAT12的磁盘头的定义************&nbsp;&nbsp;</span></li><li><span>BS_OEMName&nbsp;&nbsp;DB&nbsp;<span class="string">'SongYang'</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;OEM&nbsp;String,&nbsp;必须&nbsp;</span><span class="number">8</span><span>&nbsp;个字节&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BSB_BytePerSec&nbsp;&nbsp;DW&nbsp;<span class="number">512</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每扇区字节数&nbsp;&nbsp;</span></span></li><li><span>BSP_SecPerClus&nbsp;&nbsp;Db&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每簇多少扇区&nbsp;&nbsp;</span></span></li><li><span>BPB_RsvdSecCnt&nbsp;&nbsp;DW&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;Boot&nbsp;记录占用多少扇区&nbsp;&nbsp;</span></span></li><li><span>BSP_NumFats&nbsp;DB&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;共有多少&nbsp;FAT&nbsp;表&nbsp;&nbsp;</span></span></li><li><span>BSP_RootEntCnt&nbsp;&nbsp;DW&nbsp;<span class="number">224</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;根目录文件数最大值&nbsp;&nbsp;</span></span></li><li><span>BSP_TotSec16&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;<span class="number">2880</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;逻辑扇区总数&nbsp;&nbsp;</span></span></li><li><span>BPB_Media&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="number">0xF0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;媒体描述符&nbsp;&nbsp;</span></span></li><li><span>BPB_FATSz16&nbsp;DW&nbsp;<span class="number">9</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每FAT扇区数&nbsp;&nbsp;</span></span></li><li><span>BPB_SecPerTrk&nbsp;&nbsp;&nbsp;DW&nbsp;<span class="number">18</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每磁道扇区数&nbsp;&nbsp;</span></span></li><li><span>BPB_NumHeads&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;磁头数(面数)&nbsp;&nbsp;</span></span></li><li><span>BPB_HiddSec&nbsp;DD&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;隐藏扇区数&nbsp;&nbsp;</span></span></li><li><span>BPB_TotSec32&nbsp;&nbsp;&nbsp;&nbsp;DD&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;如果&nbsp;wTotalSectorCount&nbsp;是</span><span class="number">0</span><span>由这个值记录&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+扇区数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BS_DrvNum&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;中断&nbsp;</span><span class="number">13</span><span>&nbsp;的驱动器号&nbsp;&nbsp;</span></span></li><li><span>BS_Reserved1&nbsp;&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;未使用&nbsp;&nbsp;</span></span></li><li><span>BS_BootSig&nbsp;&nbsp;DB&nbsp;29h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;扩展引导标记&nbsp;(29h)&nbsp;&nbsp;</span></li><li><span>BS_VolID&nbsp;&nbsp;&nbsp;&nbsp;DD&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;卷序列号&nbsp;&nbsp;</span></span></li><li><span>BS_Volab&nbsp;&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="string">'Tinix0.01&nbsp;&nbsp;'</span><span>&nbsp;&nbsp;&nbsp;&nbsp;;卷标,&nbsp;必须&nbsp;</span><span class="number">11</span><span>&nbsp;个字节&nbsp;&nbsp;</span></span></li><li><span>BS_FileSysType&nbsp;&nbsp;DB&nbsp;<span class="string">'FAT12&nbsp;&nbsp;&nbsp;'</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;文件系统类型,&nbsp;必须&nbsp;</span><span class="number">8</span><span>个字节&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>LABEL_START:&nbsp;&nbsp;</span></li></ol></div><pre title="FAT12文件格式" pre_index="0" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">;===============================================================================
+jmp short LABEL_START
+nop				   	;必不可少的
+;**以下是FAT12的磁盘头的定义************
+BS_OEMName	DB 'SongYang'		;OEM String, 必须 8 个字节
+
+BSB_BytePerSec	DW 512			;每扇区字节数
+BSP_SecPerClus	Db 1			;每簇多少扇区
+BPB_RsvdSecCnt	DW 1			;Boot 记录占用多少扇区
+BSP_NumFats	DB 2			;共有多少 FAT 表
+BSP_RootEntCnt	DW 224			;根目录文件数最大值
+BSP_TotSec16	DW 2880			;逻辑扇区总数
+BPB_Media	DB 0xF0			;媒体描述符
+BPB_FATSz16	DW 9			;每FAT扇区数
+BPB_SecPerTrk	DW 18			;每磁道扇区数
+BPB_NumHeads	DW 2			;磁头数(面数)
+BPB_HiddSec	DD 0			;隐藏扇区数
+BPB_TotSec32	DD 0			;如果 wTotalSectorCount 是0由这个值记录
+					;扇区数
+
+BS_DrvNum	DB 0			;中断 13 的驱动器号
+BS_Reserved1	DB 0			;未使用
+BS_BootSig	DB 29h			;扩展引导标记 (29h)
+BS_VolID	DD 0			;卷序列号
+BS_Volab	DB 'Tinix0.01  '	;卷标, 必须 11 个字节
+BS_FileSysType	DB 'FAT12   '		;文件系统类型, 必须 8个字节
+
+LABEL_START:</pre>
+
+<p>&nbsp;</p>
+
+<p></p>
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+<p><span style="font-size: medium;"><strong>软盘的读写</strong> </span></p>
+<p>&nbsp;&nbsp; <span style="font-size: medium;">要读写软盘的话，这时就需要BIOS中断int 13h。用法如下：</span> </p>
+<p>&nbsp;</p>
+<table style="height: 109px;" border="1" cellpadding="1" cellspacing="0" width="491">
+<tbody><tr>
+<td>&nbsp;中断号</td>
+<td>&nbsp;寄存器</td>
+<td>&nbsp;作用</td>
+</tr>
+<tr>
+<td>13h <br>
+</td>
+<td>&nbsp;ah=00h<br>
+</td>
+<td>&nbsp;dl=驱动器号(0表示A盘)</td>
+<td>&nbsp;复位软驱</td>
+</tr>
+<tr>
+<td>ah=02h<br>ch=柱面(磁道)号<br>dh=磁头号<br>es:bx-&gt;数据缓冲区 <br>
+</td>
+<td>al=要读扇区数<br>cl=起始扇区号<br>dl=驱动器号(0表示A盘)</td>
+<td>&nbsp;从磁盘读数据入es:bx<br>指向的缓冲区</td>
+</tr>
+</tbody></table>
+<p>&nbsp;</p>
+<p><span style="font-size: medium;">下面我们编写一个示例，按上述</span> <span style="font-size: medium;">FAT12引导扇区的格式</span> <span style="font-size: medium;">编写一个引导程序读出FAT12软盘中的一个文件(test.txt)并将其打印在屏幕上，然后将编写的引导程序写入引导扇区即0号扇区，这样软盘的文件格式就是FAT12了，这时就可以在<br>DOS或者其他操作系统下访问软盘了，向里面新建一个文件test.txt并些入一些什么，然后将其作为启动盘启动，就会自动运行引导程序，找到文件test.txt并打印出文件中的东西。下面介绍具体的做法：</span> </p>
+<p><span style="font-size: medium;">1.扇区的读写</span> </p>
+<p><span style="font-size: medium;">从上表中 我们发现int 13h的参数不是扇区号</span> <span style="font-size: medium;">，而是用磁头号、柱面和起始扇区表示的，那我们如何知道扇区号来读取扇区呢，首先进行转换，公式如下：</span> </p>
+<table border="1" cellpadding="1" cellspacing="0" width="80%">
+<tbody><tr>
+<td>&nbsp;扇区号/每磁道扇区数（BPB_SecPerTrk,18）</td>
+<td>&nbsp;商Q=&gt;</td>
+<td>柱面号=Q&gt;&gt;1 <br>
+</td>
+</tr>
+<tr>
+<td>&nbsp;磁头号=Q&amp;1</td>
+</tr>
+<tr>
+<td>&nbsp;余数R=&gt;</td>
+<td>&nbsp;起起始扇区号=R+1</td>
+</tr>
+</tbody></table>
+<p>&nbsp;</p>
+<p><span style="font-size: medium;">下面我们实现一个函数来读取扇区ReadSector():</span></p>
+<p><span style="font-size: medium;">参数： </span></p>
+<p style="padding-left: 30px;">&nbsp;</p>
+<table border="0">
+<tbody><tr>
+<td><span style="font-size: medium;">ax</span></td>
+<td><span style="font-size: medium;">从第axSector开始读</span></td>
+</tr>
+<tr>
+<td><span style="font-size: medium;">cl</span></td>
+<td><span style="font-size: medium;">读取cl个Sector</span></td>
+</tr>
+<tr>
+<td><span style="font-size: medium;">es:bx</span></td>
+<td><span style="font-size: medium;">读到缓冲区es:bx</span></td>
+</tr>
+</tbody></table>
+<p><span style="font-size: medium;">代码</span><span style="font-size: medium;">如下：</span></p>
+<p>&nbsp;&nbsp;</p>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%3B----------------------------------------------------------------------------%0A%3B%20%E5%87%BD%E6%95%B0%E5%90%8D%3A%20ReadSector%0A%3B----------------------------------------------------------------------------%0A%3B%20%E4%BD%9C%E7%94%A8%3A%0A%3B%09%E4%BB%8E%E7%AC%AC%20ax%20%E4%B8%AA%20Sector%20%E5%BC%80%E5%A7%8B%2C%20%E5%B0%86%20cl%20%E4%B8%AA%20Sector%20%E8%AF%BB%E5%85%A5%20es%3Abx%20%E4%B8%AD%0AReadSector%3A%0A%09%3B%20-----------------------------------------------------------------------%0A%09%3B%20%E6%80%8E%E6%A0%B7%E7%94%B1%E6%89%87%E5%8C%BA%E5%8F%B7%E6%B1%82%E6%89%87%E5%8C%BA%E5%9C%A8%E7%A3%81%E7%9B%98%E4%B8%AD%E7%9A%84%E4%BD%8D%E7%BD%AE%20(%E6%89%87%E5%8C%BA%E5%8F%B7%20-%3E%20%E6%9F%B1%E9%9D%A2%E5%8F%B7%2C%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%2C%20%E7%A3%81%E5%A4%B4%E5%8F%B7)%0A%09%3B%20-----------------------------------------------------------------------%0A%09%3B%20%E8%AE%BE%E6%89%87%E5%8C%BA%E5%8F%B7%E4%B8%BA%20x%0A%09%3B%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%94%8C%20%E6%9F%B1%E9%9D%A2%E5%8F%B7%20%3D%20y%20%3E%3E%201%0A%09%3B%20%20%20%20%20%20%20x%20%20%20%20%20%20%20%20%20%20%20%E2%94%8C%20%E5%95%86%20y%20%E2%94%A4%0A%09%3B%20--------------%20%3D%3E%20%E2%94%A4%20%20%20%20%20%20%E2%94%94%20%E7%A3%81%E5%A4%B4%E5%8F%B7%20%3D%20y%20%26%201%0A%09%3B%20%20%E6%AF%8F%E7%A3%81%E9%81%93%E6%89%87%E5%8C%BA%E6%95%B0%20%20%20%20%20%E2%94%82%0A%09%3B%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%94%94%20%E4%BD%99%20z%20%3D%3E%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%E5%8F%B7%20%3D%20z%20%2B%201%0A%09push%09bp%0A%09mov%09bp%2C%20sp%0A%09sub%09esp%2C%202%09%09%09%3B%20%E8%BE%9F%E5%87%BA%E4%B8%A4%E4%B8%AA%E5%AD%97%E8%8A%82%E7%9A%84%E5%A0%86%E6%A0%88%E5%8C%BA%E5%9F%9F%E4%BF%9D%E5%AD%98%E8%A6%81%E8%AF%BB%E7%9A%84%E6%89%87%E5%8C%BA%E6%95%B0%3A%20byte%20%0A%0A%5Bbp-2%5D%0A%0A%09mov%09byte%20%5Bbp-2%5D%2C%20cl%0A%09push%09bx%09%09%09%3B%20%E4%BF%9D%E5%AD%98%20bx%0A%09mov%09bl%2C%20%5BBPB_SecPerTrk%5D%09%3B%20bl%3A%20%E9%99%A4%E6%95%B0%0A%09div%09bl%09%09%09%3B%20y%20%E5%9C%A8%20al%20%E4%B8%AD%2C%20z%20%E5%9C%A8%20ah%20%E4%B8%AD%0A%09inc%09ah%09%09%09%3B%20z%20%2B%2B%0A%09mov%09cl%2C%20ah%09%09%09%3B%20cl%20%3C-%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%E5%8F%B7%0A%09mov%09dh%2C%20al%09%09%09%3B%20dh%20%3C-%20y%0A%09shr%09al%2C%201%09%09%09%3B%20y%20%3E%3E%201%20(%E5%85%B6%E5%AE%9E%E6%98%AF%20y%2FBPB_NumHeads%2C%20%E8%BF%99%E9%87%8C%0A%0ABPB_NumHeads%3D2)%0A%09mov%09ch%2C%20al%09%09%09%3B%20ch%20%3C-%20%E6%9F%B1%E9%9D%A2%E5%8F%B7%0A%09and%09dh%2C%201%09%09%09%3B%20dh%20%26%201%20%3D%20%E7%A3%81%E5%A4%B4%E5%8F%B7%0A%09pop%09bx%09%09%09%3B%20%E6%81%A2%E5%A4%8D%20bx%0A%09%3B%20%E8%87%B3%E6%AD%A4%2C%20%22%E6%9F%B1%E9%9D%A2%E5%8F%B7%2C%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%2C%20%E7%A3%81%E5%A4%B4%E5%8F%B7%22%20%E5%85%A8%E9%83%A8%E5%BE%97%E5%88%B0%20%5E%5E%0A%09mov%09dl%2C%20%5BBS_DrvNum%5D%09%09%3B%20%E9%A9%B1%E5%8A%A8%E5%99%A8%E5%8F%B7%20(0%20%E8%A1%A8%E7%A4%BA%20A%20%E7%9B%98)%0A.GoOnReading%3A%0A%09mov%09ah%2C%202%09%09%09%3B%20%E8%AF%BB%0A%09mov%09al%2C%20byte%20%5Bbp-2%5D%09%09%3B%20%E8%AF%BB%20al%20%E4%B8%AA%E6%89%87%E5%8C%BA%0A%09int%0913h%0A%09jc%09.GoOnReading%09%09%3B%20%E5%A6%82%E6%9E%9C%E8%AF%BB%E5%8F%96%E9%94%99%E8%AF%AF%20CF%20%E4%BC%9A%E8%A2%AB%E7%BD%AE%E4%B8%BA%201%2C%20%E8%BF%99%E6%97%B6%E5%B0%B1%E4%B8%8D%E5%81%9C%E5%9C%B0%E8%AF%BB%2C%20%E7%9B%B4%E5%88%B0%0A%0A%E6%AD%A3%E7%A1%AE%E4%B8%BA%E6%AD%A2%0A%0A%09add%09esp%2C%202%0A%09pop%09bp%0A%0A%09ret" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></span></li><li><span>;&nbsp;函数名:&nbsp;ReadSector&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;作用:&nbsp;&nbsp;</span></li><li><span>;&nbsp;&nbsp;&nbsp;
+从第&nbsp;ax&nbsp;个&nbsp;Sector&nbsp;开始,&nbsp;将&nbsp;cl&nbsp;
+个&nbsp;Sector&nbsp;读入&nbsp;es:bx&nbsp;中&nbsp;&nbsp;</span></li><li><span>ReadSector:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;-----------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;怎样由扇区号求扇区在磁盘中的位置&nbsp;(扇区号&nbsp;-&gt;&nbsp;柱面号,&nbsp;起始扇区,&nbsp;磁头号)&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;-----------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;设扇区号为&nbsp;x&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌&nbsp;
+柱面号&nbsp;=&nbsp;y&nbsp;&gt;&gt;&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌&nbsp;
+商&nbsp;y&nbsp;┤&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;--------------&nbsp;=&
+gt;&nbsp;┤&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└&nbsp;磁头号&nbsp;=&nbsp;y&
+nbsp;&amp;&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;每磁道扇区数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└&nbsp;
+余&nbsp;z&nbsp;=&gt;&nbsp;起始扇区号&nbsp;=&nbsp;z&nbsp;+&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;&nbsp;&nbsp;&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bp,&nbsp;sp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;辟出两个字节的堆栈区域保存要读的扇区数:&nbsp;byte&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>[bp-<span class="number">2</span><span>]&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;byte&nbsp;[bp-<span class="number">2</span><span>],&nbsp;cl&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;&nbsp;&nbsp;&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+保存&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bl,&nbsp;[BPB_SecPerTrk]&nbsp;;&nbsp;bl:&nbsp;除数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;bl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;y&nbsp;
+在&nbsp;al&nbsp;中,&nbsp;z&nbsp;在&nbsp;ah&nbsp;中&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;inc&nbsp;ah&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;z&nbsp;++&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cl,&nbsp;ah&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;cl&nbsp;&lt;-&nbsp;
+起始扇区号&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dh,&nbsp;al&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;dh&nbsp;&lt;-&nbsp;y&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;shr&nbsp;al,&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;y&nbsp;&gt;&gt;&nbsp;</span><span class="number">1</span><span>&nbsp;(其实是&nbsp;y/BPB_NumHeads,&nbsp;这里&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BPB_NumHeads=<span class="number">2</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ch,&nbsp;al&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;ch&nbsp;&lt;-&nbsp;
+柱面号&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;dh,&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;dh&nbsp;&amp;&nbsp;</span><span class="number">1</span><span>&nbsp;=&nbsp;磁头号&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;恢复&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;至此,&nbsp;<span class="string">"柱面号,&nbsp;起始扇区,&nbsp;磁头号"</span><span>&nbsp;全部得到&nbsp;^^&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dl,&nbsp;[BS_DrvNum]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;驱动器号&nbsp;(<span class="number">0</span><span>&nbsp;表示&nbsp;A&nbsp;盘)&nbsp;&nbsp;</span></span></li><li><span>.GoOnReading:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ah,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;读&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;al,&nbsp;byte&nbsp;[bp-<span class="number">2</span><span>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;读&nbsp;al&nbsp;个扇区&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;13h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jc&nbsp;&nbsp;.GoOnReading&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+如果读取错误&nbsp;CF&nbsp;会被置为&nbsp;<span class="number">1</span><span>,&nbsp;这时就不停地读,&nbsp;直到&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>正确为止&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ret&nbsp;&nbsp;</span></li></ol></div><pre title="FAT12文件格式" pre_index="1" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">;----------------------------------------------------------------------------
+; 函数名: ReadSector
+;----------------------------------------------------------------------------
+; 作用:
+;	从第 ax 个 Sector 开始, 将 cl 个 Sector 读入 es:bx 中
+ReadSector:
+	; -----------------------------------------------------------------------
+	; 怎样由扇区号求扇区在磁盘中的位置 (扇区号 -&gt; 柱面号, 起始扇区, 磁头号)
+	; -----------------------------------------------------------------------
+	; 设扇区号为 x
+	;                           ┌ 柱面号 = y &gt;&gt; 1
+	;       x           ┌ 商 y ┤
+	; -------------- =&gt; ┤      └ 磁头号 = y &amp; 1
+	;  每磁道扇区数     │
+	;                   └ 余 z =&gt; 起始扇区号 = z + 1
+	push	bp
+	mov	bp, sp
+	sub	esp, 2			; 辟出两个字节的堆栈区域保存要读的扇区数: byte 
+
+[bp-2]
+
+	mov	byte [bp-2], cl
+	push	bx			; 保存 bx
+	mov	bl, [BPB_SecPerTrk]	; bl: 除数
+	div	bl			; y 在 al 中, z 在 ah 中
+	inc	ah			; z ++
+	mov	cl, ah			; cl &lt;- 起始扇区号
+	mov	dh, al			; dh &lt;- y
+	shr	al, 1			; y &gt;&gt; 1 (其实是 y/BPB_NumHeads, 这里
+
+BPB_NumHeads=2)
+	mov	ch, al			; ch &lt;- 柱面号
+	and	dh, 1			; dh &amp; 1 = 磁头号
+	pop	bx			; 恢复 bx
+	; 至此, "柱面号, 起始扇区, 磁头号" 全部得到 ^^
+	mov	dl, [BS_DrvNum]		; 驱动器号 (0 表示 A 盘)
+.GoOnReading:
+	mov	ah, 2			; 读
+	mov	al, byte [bp-2]		; 读 al 个扇区
+	int	13h
+	jc	.GoOnReading		; 如果读取错误 CF 会被置为 1, 这时就不停地读, 直到
+
+正确为止
+
+	add	esp, 2
+	pop	bp
+
+	ret</pre>
+<p>&nbsp;</p>
+<p><span style="font-size: medium;">&nbsp;<span style="color: #ff0000;">注意事项：</span></span></p>
+<ul>
+<li><span style="color: #ff0000; font-size: medium;">注意各个参数的取值范围的问题，并不是随意取值的；每次读取扇区只能在同一个磁道中读取，也就是说一次最多能读取BPB_SecPerTrk(18)个扇区，也就是说cl的取值小于等于[BPB_SecPerTrk-（ax%BPB_SecPerTrk）].</span></li>
+<li><span style="color: #0000ff; font-size: medium;">es:bx的选择问题，如果es:bx 和 cl选取的不当 会出现【09h = DMA across 64K boundary】这个错误，原因不知道，有知道的可以告诉我。</span></li>
+</ul>
+<p><span style="color: #ff0000; font-size: medium;">举个例子：读取9个扇区到8EE0:0000h不出错，但是读到8EE0:0001h就出错！但是读取8个以下的扇区则没问题！很奇怪的问题。以下是我的猜测：</span></p>
+<p><span style="color: #ff0000; font-size: medium;">DMA的缓存是64k的大
+小，8000:0000h-9000:0000h正好是64K，也就是内存按64K划分，DMA缓冲区对应于每个64K的内存，而8EE0:0000h-
+9000:0000h正好是9个扇区的大小，8EE0:0001h则少了一个字节，故出错！这只是本人的猜测，查了很长时间也没差到原因，有知道的可以告
+诉我。</span></p>
+<p><span style="color: #ff0000; font-size: medium;">
+</span></p><p><span style="color: #000000;"><span style="font-size: medium;">2.获得文件的第一个簇号(这里也是区号，二则相等)</span></span></p>
+<p><span style="color: #000000;">&nbsp;&nbsp;&nbsp;要想获某个文件的第一个簇号 需要在根目录中查找对应的目录项(这里假设文件都放在了根目录中个)，步骤如下：</span></p>
+<ul>
+<li>将整个根目录区域加载进内存，(根目录不是很大，相对现在的大内存)，直接加载进内存方便操作。</li>
+</ul>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%09%3B**%E5%B0%86%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%95%B4%E4%B8%AA%E7%9A%84%E9%83%BD%E8%AF%BB%E5%88%B0es%3Abx%E5%A4%84%0A%09mov%09ax%2C%20BaseOfLoader%0A%09mov%09es%2C%20ax%09%09%09%3B%20es%20%3C-%20BaseOfLoader%0A%09mov%09bx%2C%20OffsetOfLoader%09%3B%20bx%20%3C-%20OffsetOfLoader%09%E4%BA%8E%E6%98%AF%2C%20es%3Abx%20%3D%20%0A%0ABaseOfLoader%3AOffsetOfLoader%0A%09mov%09ax%2C%20SectorNoOfRootDirectory%09%3B%20ax%20%3C-%20Root%20Directory%20%E4%B8%AD%E7%9A%84%E6%9F%90%20Sector%20%E5%8F%B7%0A%09mov%09cl%2C%20RootDirSectors%20%20%20%20%20%20%3B%E5%B0%86%E6%A0%B9%E7%9B%AE%E5%BD%95%E9%83%BD%E8%AF%BB%E5%87%BA%E6%9D%A5%0A%09call%09ReadSector" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>&nbsp;&nbsp;&nbsp;&nbsp;;**将根目录整个的都读到es:bx处&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;es&nbsp;&lt;-&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;OffsetOfLoader&nbsp;&nbsp;;&nbsp;bx&nbsp;&lt;-&nbsp;OffsetOfLoader&nbsp;&nbsp;&nbsp;
+于是,&nbsp;es:bx&nbsp;=&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BaseOfLoader:OffsetOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;SectorNoOfRootDirectory&nbsp;;&nbsp;ax&nbsp;&lt;-&nbsp;Root&nbsp;Directory&nbsp;
+中的某&nbsp;Sector&nbsp;号&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cl,&nbsp;RootDirSectors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;将根目录都读出来&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;&nbsp;&nbsp;&nbsp;ReadSector&nbsp;&nbsp;</span></li></ol></div><pre title="FAT12文件格式" pre_index="2" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">	;**将根目录整个的都读到es:bx处
+	mov	ax, BaseOfLoader
+	mov	es, ax			; es &lt;- BaseOfLoader
+	mov	bx, OffsetOfLoader	; bx &lt;- OffsetOfLoader	于是, es:bx = 
+
+BaseOfLoader:OffsetOfLoader
+	mov	ax, SectorNoOfRootDirectory	; ax &lt;- Root Directory 中的某 Sector 号
+	mov	cl, RootDirSectors      ;将根目录都读出来
+	call	ReadSector</pre>
+<p>&nbsp;&nbsp;</p>
+<ul>
+<li>&nbsp;在根目录中逐条查找直到结束，代码如下：&nbsp;</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color: #000000;">这里得到的簇号就是区号SecNo，因为这里一个簇里面只有一个扇区，但是数据区的第一个簇号是从2开始的，要计算其对应的扇区号应按下面的公式计算：</span> </p>
+<p style="padding-left: 30px;">SecNo = SecNo + (1+9*2 +RootDirSectors -2 -1)&nbsp;</p>
+<p><span style="color: #000000;">其1个引导扇区，2个FAT表，0个隐藏扇区，</span><span style="color: #000000;">RootDirSectors个根目录，由于第一个簇号事2故要减去2，编号是从0开始的故要减去个1。</span></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%09mov%09si%2C%20LoaderFileName%09%3B%20ds%3Asi%20-%3E%20%22TEST%20%20%20%20TXT%22%0A%09mov%09di%2C%20OffsetOfLoader%09%3B%20es%3Adi%20-%3E%20BaseOfLoader%3A0100%20%3D%20%0A%0ABaseOfLoader*10h%2B100%0A%09cld%09%09%09%09%3B%E8%AE%BE%E7%BD%AE%E6%96%B9%E5%90%91%E6%A0%87%E5%BF%97%0A%09%0A%09mov%20cx%2C%20%5BBSP_RootEntCnt%5D%0A%09mov%20%5BRootDirectItemNum%5D%2C%20cx%09%3B%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%A1%E6%95%B0%0A%0ALABEL_SEARCH_FOR_LOADERBIN%3A%0A%09cmp%20word%20%5BRootDirectItemNum%5D%2C%200%0A%09jz%20NOLOADER%0A%09dec%20word%20%5BRootDirectItemNum%5D%0A%09%0A%09mov%09cx%2C%2011%0ALABEL_CMP_FILENAME%3A%0A%09cmp%09cx%2C%200%0A%09jz%09LABEL_FILENAME_FOUND%09%3B%20%E5%A6%82%E6%9E%9C%E6%AF%94%E8%BE%83%E4%BA%86%2011%20%E4%B8%AA%E5%AD%97%E7%AC%A6%E9%83%BD%E7%9B%B8%E7%AD%89%2C%20%E8%A1%A8%E7%A4%BA%E6%89%BE%E5%88%B0%0A%09dec%09cx%0A%09lodsb%09%09%09%09%3B%20ds%3Asi%20-%3E%20al%0A%09cmp%09al%2C%20byte%20%5Bes%3Adi%5D%0A%09jz%09LABEL_GO_ON%0A%09jmp%09LABEL_DIFFERENT%09%09%3B%20%E5%8F%AA%E8%A6%81%E5%8F%91%E7%8E%B0%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E5%AD%97%E7%AC%A6%E5%B0%B1%E8%A1%A8%E6%98%8E%E6%9C%AC%20DirectoryEntry%20%E4%B8%8D%E6%98%AF%0A%0ALABEL_GO_ON%3A%0A%09inc%20di%0A%09jmp%20LABEL_CMP_FILENAME%0ALABEL_DIFFERENT%3A%0A%09and%20di%2C%200FFE0h%0A%09add%20di%2C%20020h%0A%09and%20si%2C%20LoaderFileName%0A%09jmp%20LABEL_SEARCH_FOR_LOADERBIN%0ANOLOADER%3A%0A%09mov%20dh%2C%200%0A%09call%20DispStr%0A%09jmp%20%24%0ALABEL_FILENAME_FOUND%3A%0A%09and%20di%2C%200FFE0h%0A%09%0A%09mov%20eax%2C%20%5Bes%3Adi%2B0x1C%5D%0A%09mov%20%5BFileLength%5D%2C%20eax%0A%0A%09add%20di%2C%2001Ah%09%09%3B%20di%20-%3E%20%E9%A6%96%20Sector(%E5%81%8F%E7%A7%BB)%09%0A%09%0A%20%20%20%20%20%20%20%20mov%20cx%2C%20word%20%5Bes%3Adi%5D%0A%09push%20cx%09%09%09%3Bcx%E9%87%8C%E9%9D%A2%E6%94%BE%E7%9A%84%E6%98%AFLoader%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%89%87%E5%8C%BA%E5%8F%B7(%E6%95%B0%E6%8D%AE%E5%8C%BA%E7%9A%84%E4%BB%8E2%E5%BC%80%E5%A7%8B)" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;si,&nbsp;LoaderFileName&nbsp;&nbsp;;&nbsp;ds:si&nbsp;-&gt;&nbsp;</span><span class="string">"TEST&nbsp;&nbsp;&nbsp;&nbsp;TXT"</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;di,&nbsp;OffsetOfLoader&nbsp;&nbsp;;&nbsp;es:di&nbsp;-&gt;&nbsp;BaseOfLoader:<span class="number">0100</span><span>&nbsp;=&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BaseOfLoader*10h+<span class="number">100</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cld&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;设置方向标志&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;[BSP_RootEntCnt]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;[RootDirectItemNum],&nbsp;cx&nbsp;;根目录的条数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>LABEL_SEARCH_FOR_LOADERBIN:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;word&nbsp;[RootDirectItemNum],&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;NOLOADER&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;dec&nbsp;word&nbsp;[RootDirectItemNum]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;<span class="number">11</span><span>&nbsp;&nbsp;</span></span></li><li><span>LABEL_CMP_FILENAME:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;cx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;&nbsp;LABEL_FILENAME_FOUND&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;如果比较了&nbsp;<span class="number">11</span><span>&nbsp;个字符都相等,&nbsp;表示找到&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;dec&nbsp;cx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;lodsb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;ds:si&nbsp;-&gt;&nbsp;al&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;al,&nbsp;byte&nbsp;[es:di]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;&nbsp;LABEL_GO_ON&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;LABEL_DIFFERENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+只要发现不一样的字符就表明本&nbsp;DirectoryEntry&nbsp;不是&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>LABEL_GO_ON:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;inc&nbsp;di&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;LABEL_CMP_FILENAME&nbsp;&nbsp;</span></li><li><span>LABEL_DIFFERENT:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;di,&nbsp;0FFE0h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;di,&nbsp;020h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;si,&nbsp;LoaderFileName&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;LABEL_SEARCH_FOR_LOADERBIN&nbsp;&nbsp;</span></li><li><span>NOLOADER:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dh,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;DispStr&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;$&nbsp;&nbsp;</span></li><li><span>LABEL_FILENAME_FOUND:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;di,&nbsp;0FFE0h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;[es:di+<span class="number">0x1C</span><span>]&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;[FileLength],&nbsp;eax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;di,&nbsp;01Ah&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;di&nbsp;-&gt;&nbsp;
+首&nbsp;Sector(偏移)&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;word&nbsp;[es:di]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;cx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;cx里面放的是Loader的第一个扇区号(数据区的从<span class="number">2</span><span>开始)&nbsp;&nbsp;</span></span></li></ol></div><pre title="FAT12文件格式" pre_index="3" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">	mov	si, LoaderFileName	; ds:si -&gt; "TEST    TXT"
+	mov	di, OffsetOfLoader	; es:di -&gt; BaseOfLoader:0100 = 
+
+BaseOfLoader*10h+100
+	cld				;设置方向标志
+	
+	mov cx, [BSP_RootEntCnt]
+	mov [RootDirectItemNum], cx	;根目录的条数
+
+LABEL_SEARCH_FOR_LOADERBIN:
+	cmp word [RootDirectItemNum], 0
+	jz NOLOADER
+	dec word [RootDirectItemNum]
+	
+	mov	cx, 11
+LABEL_CMP_FILENAME:
+	cmp	cx, 0
+	jz	LABEL_FILENAME_FOUND	; 如果比较了 11 个字符都相等, 表示找到
+	dec	cx
+	lodsb				; ds:si -&gt; al
+	cmp	al, byte [es:di]
+	jz	LABEL_GO_ON
+	jmp	LABEL_DIFFERENT		; 只要发现不一样的字符就表明本 DirectoryEntry 不是
+
+LABEL_GO_ON:
+	inc di
+	jmp LABEL_CMP_FILENAME
+LABEL_DIFFERENT:
+	and di, 0FFE0h
+	add di, 020h
+	and si, LoaderFileName
+	jmp LABEL_SEARCH_FOR_LOADERBIN
+NOLOADER:
+	mov dh, 0
+	call DispStr
+	jmp $
+LABEL_FILENAME_FOUND:
+	and di, 0FFE0h
+	
+	mov eax, [es:di+0x1C]
+	mov [FileLength], eax
+
+	add di, 01Ah		; di -&gt; 首 Sector(偏移)	
+	
+        mov cx, word [es:di]
+	push cx			;cx里面放的是Loader的第一个扇区号(数据区的从2开始)</pre>
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+<p></p>
+<p>&nbsp;<span style="font-size: medium;">3.</span><span style="color: #000000;"><span style="font-size: medium;">FAT表中的下一个簇号</span></span></p>
+<p><span style="font-size: medium;">&nbsp; 同样的道理先将整个FAT表读到内存中：</span></p>
+<p><span style="font-size: medium;">&nbsp;
+</span></p><div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%3B**%E8%AF%BB%E5%8F%96Fat%E8%A1%A8%20%0A%09mov%20ax%2C%20BaseOfLoader%0A%09sub%20ax%2C%20FatOffset%09%3B%E5%88%86%E9%85%8D5k%E5%86%85%E5%AD%98(512*10%2F1024)%0A%09mov%20es%2C%20ax%0A%09mov%20bx%2C%200%09%09%3B%E5%B0%86Fat%E8%AF%BB%E5%88%B0es%3Abx%0A%09mov%20ax%2C%20%5BBPB_RsvdSecCnt%5D%3BFat%E5%BC%80%E5%A7%8B%E6%89%87%E5%8C%BA%201%0A%09mov%20cl%2C%20%5BBPB_FATSz16%5D%0A%09call%20ReadSector" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>;**读取Fat表&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;ax,&nbsp;FatOffset&nbsp;&nbsp;&nbsp;;分配5k内存(<span class="number">512</span><span>*</span><span class="number">10</span><span>/</span><span class="number">1024</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;将Fat读到es:bx&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;[BPB_RsvdSecCnt];Fat开始扇区&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cl,&nbsp;[BPB_FATSz16]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;ReadSector&nbsp;&nbsp;</span></li></ol></div><pre title="FAT12文件格式" pre_index="4" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">;**读取Fat表 
+	mov ax, BaseOfLoader
+	sub ax, FatOffset	;分配5k内存(512*10/1024)
+	mov es, ax
+	mov bx, 0		;将Fat读到es:bx
+	mov ax, [BPB_RsvdSecCnt];Fat开始扇区 1
+	mov cl, [BPB_FATSz16]
+	call ReadSector</pre>
+<p>&nbsp;然后查找下一个簇号，由于可能多次调用写成了一个函数GetFATEntry()：</p>
+<p>&nbsp; 参数ax：簇号</p>
+<p>&nbsp; 返回值ax：下一个簇号，<span style="color: #ff0000;">需要注意簇号大于等于0xFF8表示文件的最后一个簇，为0xFF7表示坏簇。</span></p>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%3B----------------------------------------------------------------------------%0A%3B%20%E5%87%BD%E6%95%B0%E5%90%8D%3A%20GetFATEntry%0A%3B----------------------------------------------------------------------------%0A%3B%20%E4%BD%9C%E7%94%A8%3A%20ax%0A%3B%09%0AGetFATEntry%3A%0A%09push%20bp%0A%09mov%20bp%2C%20sp%0A%09sub%20esp%2C%202%0A%09mov%20word%20%5Bbp-2%5D%2C%200%0A%09push%20es%20%0A%09push%20bx%0A%09push%20dx%0A%09mov%20bx%2C%203%0A%09mul%20bx%09%09%09%09%3Bax%20%3D%20ax%20*%203%0A%09mov%20bx%2C%202%0A%09div%20bx%09%09%09%09%3B%E5%95%86%E5%9C%A8ax%20%E4%BD%99%E6%95%B0%E5%9C%A8dx%0A%09cmp%20dx%2C%200%0A%09jz%20LABEL_EVEN%09%09%09%3B%E5%81%B6%E6%95%B0%0A%09mov%20word%20%5Bbp-2%5D%2C%201%09%09%3B%E5%A5%87%E6%95%B0%0ALABEL_EVEN%3A%0A%09mov%20bx%2C%20ax%0A%09mov%20ax%2C%20BaseOfLoader%0A%09sub%20ax%2C%20FatOffset%0A%09mov%20es%2C%20ax%0A%09mov%20word%20ax%2C%20%5Bes%3Abx%5D%0A%09cmp%20word%20%5Bbp-2%5D%2C%200%0A%09jz%20LABEL_EVEN_2%0A%09shr%20ax%2C%204%0ALABEL_EVEN_2%3A%0A%09and%20ax%2C%200FFFh%09%09%09%3B%E4%BD%8E%E5%8D%81%E4%BA%8C%E4%BD%8D%0A%09pop%20dx%0A%09pop%20bx%0A%09pop%20es%0A%09add%20esp%2C%202%0A%09pop%20bp%0A%09ret" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></span></li><li><span>;&nbsp;函数名:&nbsp;GetFATEntry&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;作用:&nbsp;ax&nbsp;&nbsp;</span></li><li><span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>GetFATEntry:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bp,&nbsp;sp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;word&nbsp;[bp-<span class="number">2</span><span>],&nbsp;</span><span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;es&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;<span class="number">3</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mul&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;ax&nbsp;=&nbsp;ax&nbsp;*&nbsp;<span class="number">3</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+商在ax&nbsp;余数在dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;dx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;LABEL_EVEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;偶数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;word&nbsp;[bp-<span class="number">2</span><span>],&nbsp;</span><span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;奇数&nbsp;&nbsp;</span></span></li><li><span>LABEL_EVEN:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;ax,&nbsp;FatOffset&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;word&nbsp;ax,&nbsp;[es:bx]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;word&nbsp;[bp-<span class="number">2</span><span>],&nbsp;</span><span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;LABEL_EVEN_2&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;shr&nbsp;ax,&nbsp;<span class="number">4</span><span>&nbsp;&nbsp;</span></span></li><li><span>LABEL_EVEN_2:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;ax,&nbsp;0FFFh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+低十二位&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;es&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ret&nbsp;&nbsp;</span></li></ol></div><pre title="FAT12文件格式" pre_index="5" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">;----------------------------------------------------------------------------
+; 函数名: GetFATEntry
+;----------------------------------------------------------------------------
+; 作用: ax
+;	
+GetFATEntry:
+	push bp
+	mov bp, sp
+	sub esp, 2
+	mov word [bp-2], 0
+	push es 
+	push bx
+	push dx
+	mov bx, 3
+	mul bx				;ax = ax * 3
+	mov bx, 2
+	div bx				;商在ax 余数在dx
+	cmp dx, 0
+	jz LABEL_EVEN			;偶数
+	mov word [bp-2], 1		;奇数
+LABEL_EVEN:
+	mov bx, ax
+	mov ax, BaseOfLoader
+	sub ax, FatOffset
+	mov es, ax
+	mov word ax, [es:bx]
+	cmp word [bp-2], 0
+	jz LABEL_EVEN_2
+	shr ax, 4
+LABEL_EVEN_2:
+	and ax, 0FFFh			;低十二位
+	pop dx
+	pop bx
+	pop es
+	add esp, 2
+	pop bp
+	ret</pre>
+<p>&nbsp;最后给出整个的程序：</p>
+<p>&nbsp;</p>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Nasm代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=%3B*******************************************************************************80%0A%3B**boot.asm%20%E8%BD%AF%E7%9B%98%E5%BC%95%E5%AF%BC%E5%88%86%E5%8C%BA%0A%3B*******************************************************************************%0Aorg%2007c00h%09%09%09%09%3BBIOS%E5%B0%86%E6%8A%8ABoot%20Sector%E5%BC%80%E6%9C%BA%E5%8A%A0%E8%BD%BD%E5%88%B0%20%0A%09%09%09%09%09%3B%E5%9C%B0%E5%9D%800000%3A7c00%20%E5%B9%B6%E6%89%A7%E8%A1%8C%0A%0A%3B%3D%3D%E5%AE%8F%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%0ABaseOfStack%09equ%0907c00h%09%09%3Bboot%E7%8A%B6%E6%80%81%E4%B8%8B%E7%9A%84%E5%A0%86%E6%A0%88%E5%9F%BA%E5%9C%B0%E5%9D%80(%E6%B3%A8%E6%84%8F%E5%A0%86%E6%A0%88%E6%98%AF%E5%90%91%E4%B8%8B%0A%09%09%09%09%09%3B%E7%94%9F%E9%95%BF%E7%9A%84)%0A%3BLoader%20address%0ABaseOfLoader%09%09equ%09%2009000h%09%3BTEST.TXT%20%E8%A2%AB%E5%8A%A0%E8%BD%BD%E5%88%B0%E7%9A%84%E4%BD%8D%E7%BD%AE%20----%20%20%E6%AE%B5%E5%9C%B0%E5%9D%80%0AOffsetOfLoader%09%09equ%09%20%200100h%09%3BTEST.TXT%20%E8%A2%AB%E5%8A%A0%E8%BD%BD%E5%88%B0%E7%9A%84%E4%BD%8D%E7%BD%AE%20----%20%E5%81%8F%E7%A7%BB%E5%9C%B0%0A%09%09%09%09%09%3B%E5%9D%80%20(%E5%85%B163K%E7%9A%84%E5%A4%A7%E5%B0%8F)%0A%3BFAT12%0ASectorNoOfRootDirectory%09equ%0919%09%3BRoot%20Directory%20%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%89%87%E5%8C%BA%E5%8F%B7%3D%20%0A%09%09%09%09%09%3BBPB_RsvdSecCnt%20%2B%20(BPB_NumFATs%20*%20FATSz)%0ARootDirSectors%09%09equ%0914%09%3B%20%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E7%A9%BA%E9%97%B4%3A%20RootDirSectors%20%3D%20%0A%09%09%09%09%09%3B((BPB_RootEntCnt%20*%2032)%20%2B%20(BPB_BytsPerSec%0A%09%09%09%09%09%3B%20%E2%80%93%201))%20%2F%20BPB_BytsPerSec%3B%20%E4%BD%86%E5%A6%82%E6%9E%9C%E6%8C%89%E7%85%A7%E6%AD%A4%E5%85%AC%0A%09%09%09%09%09%3B%E5%BC%8F%E4%BB%A3%E7%A0%81%E8%BF%87%E9%95%BF%0AFatOffset%09%09equ%20%09120h%09%3BFAT%E8%A1%A8%E7%BC%93%E5%86%B2%E5%81%8F%E7%A7%BB%0A%3B%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%0Ajmp%20short%20LABEL_START%0Anop%09%09%09%09%20%20%20%09%3B%E5%BF%85%E4%B8%8D%E5%8F%AF%E5%B0%91%E7%9A%84%0A%3B**%E4%BB%A5%E4%B8%8B%E6%98%AFFAT12%E7%9A%84%E7%A3%81%E7%9B%98%E5%A4%B4%E7%9A%84%E5%AE%9A%E4%B9%89************%0ABS_OEMName%09DB%20'SongYang'%09%09%3BOEM%20String%2C%20%E5%BF%85%E9%A1%BB%208%20%E4%B8%AA%E5%AD%97%E8%8A%82%0A%0ABSB_BytePerSec%09DW%20512%09%09%09%3B%E6%AF%8F%E6%89%87%E5%8C%BA%E5%AD%97%E8%8A%82%E6%95%B0%0ABSP_SecPerClus%09Db%201%09%09%09%3B%E6%AF%8F%E7%B0%87%E5%A4%9A%E5%B0%91%E6%89%87%E5%8C%BA%0ABPB_RsvdSecCnt%09DW%201%09%09%09%3BBoot%20%E8%AE%B0%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E5%B0%91%E6%89%87%E5%8C%BA%0ABSP_NumFats%09DB%202%09%09%09%3B%E5%85%B1%E6%9C%89%E5%A4%9A%E5%B0%91%20FAT%20%E8%A1%A8%0ABSP_RootEntCnt%09DW%20224%09%09%09%3B%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%96%87%E4%BB%B6%E6%95%B0%E6%9C%80%E5%A4%A7%E5%80%BC%0ABSP_TotSec16%09DW%202880%09%09%09%3B%E9%80%BB%E8%BE%91%E6%89%87%E5%8C%BA%E6%80%BB%E6%95%B0%0ABPB_Media%09DB%200xF0%09%09%09%3B%E5%AA%92%E4%BD%93%E6%8F%8F%E8%BF%B0%E7%AC%A6%0ABPB_FATSz16%09DW%209%09%09%09%3B%E6%AF%8FFAT%E6%89%87%E5%8C%BA%E6%95%B0%0ABPB_SecPerTrk%09DW%2018%09%09%09%3B%E6%AF%8F%E7%A3%81%E9%81%93%E6%89%87%E5%8C%BA%E6%95%B0%0ABPB_NumHeads%09DW%202%09%09%09%3B%E7%A3%81%E5%A4%B4%E6%95%B0(%E9%9D%A2%E6%95%B0)%0ABPB_HiddSec%09DD%200%09%09%09%3B%E9%9A%90%E8%97%8F%E6%89%87%E5%8C%BA%E6%95%B0%0ABPB_TotSec32%09DD%200%09%09%09%3B%E5%A6%82%E6%9E%9C%20wTotalSectorCount%20%E6%98%AF0%E7%94%B1%E8%BF%99%E4%B8%AA%E5%80%BC%E8%AE%B0%E5%BD%95%0A%09%09%09%09%09%3B%E6%89%87%E5%8C%BA%E6%95%B0%0A%0ABS_DrvNum%09DB%200%09%09%09%3B%E4%B8%AD%E6%96%AD%2013%20%E7%9A%84%E9%A9%B1%E5%8A%A8%E5%99%A8%E5%8F%B7%0ABS_Reserved1%09DB%200%09%09%09%3B%E6%9C%AA%E4%BD%BF%E7%94%A8%0ABS_BootSig%09DB%2029h%09%09%09%3B%E6%89%A9%E5%B1%95%E5%BC%95%E5%AF%BC%E6%A0%87%E8%AE%B0%20(29h)%0ABS_VolID%09DD%200%09%09%09%3B%E5%8D%B7%E5%BA%8F%E5%88%97%E5%8F%B7%0ABS_Volab%09DB%20'Tinix0.01%20%20'%09%3B%E5%8D%B7%E6%A0%87%2C%20%E5%BF%85%E9%A1%BB%2011%20%E4%B8%AA%E5%AD%97%E8%8A%82%0ABS_FileSysType%09DB%20'FAT12%20%20%20'%09%09%3B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%2C%20%E5%BF%85%E9%A1%BB%208%E4%B8%AA%E5%AD%97%E8%8A%82%0A%0ALABEL_START%3A%0A%3B**%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AF%84%E5%AD%98%E5%99%A8*************************%0A%09mov%20ax%2C%20cs%0A%09mov%20ds%2C%20ax%0A%09mov%20es%2C%20ax%0A%09mov%20ss%2C%20ax%0A%09mov%20sp%2C%20BaseOfStack%0A%3B**%E6%B8%85%E5%B1%8F*********************************%0A%09mov%09ax%2C%200600h%09%09%3B%20AH%20%3D%206%2C%20%20AL%20%3D%200h%0A%09mov%09bx%2C%200700h%09%09%3B%20%E9%BB%91%E5%BA%95%E7%99%BD%E5%AD%97(BL%20%3D%2007h)%0A%09mov%09cx%2C%200%09%09%09%3B%20%E5%B7%A6%E4%B8%8A%E8%A7%92%3A%20(0%2C%200)%0A%09mov%09dx%2C%200184fh%09%09%3B%20%E5%8F%B3%E4%B8%8B%E8%A7%92%3A%20(80%2C%2050)%0A%09int%0910h%09%09%09%3B%20int%2010h%0A%3B**%E8%BD%AF%E9%A9%B1%E5%A4%8D%E4%BD%8D*****************************%0A%09xor%20ah%2C%09ah%09%3B%20%E2%94%93%0A%09xor%20dl%2C%09dl%09%3B%20%E2%94%A3%20%E8%BD%AF%E9%A9%B1%E5%A4%8D%E4%BD%8D%0A%09int%2013h%09%09%3B%20%E2%94%9B%0A%3B**%E5%9C%A8%E8%BD%AF%E7%9B%98%E4%B8%AD%E5%AF%BB%E6%89%BELoader.bin(FAT12)********%0A%09%3B**%E5%B0%86%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%95%B4%E4%B8%AA%E7%9A%84%E9%83%BD%E8%AF%BB%E5%88%B0es%3Abx%E5%A4%84%0A%09mov%09ax%2C%20BaseOfLoader%0A%09mov%09es%2C%20ax%09%09%09%3B%20es%20%3C-%20BaseOfLoader%0A%09mov%09bx%2C%20OffsetOfLoader%09%3B%20bx%20%3C-%20OffsetOfLoader%09%E4%BA%8E%E6%98%AF%2C%20es%3Abx%20%3D%20%0A%0ABaseOfLoader%3AOffsetOfLoader%0A%09mov%09ax%2C%20SectorNoOfRootDirectory%09%3B%20ax%20%3C-%20Root%20Directory%20%E4%B8%AD%E7%9A%84%E6%9F%90%20Sector%20%E5%8F%B7%0A%09mov%09cl%2C%20RootDirSectors%20%20%20%20%20%20%3B%E5%B0%86%E6%A0%B9%E7%9B%AE%E5%BD%95%E9%83%BD%E8%AF%BB%E5%87%BA%E6%9D%A5%0A%09call%09ReadSector%0A%09%0A%09%3Bmov%09ax%2C%20BaseOfLoader%0A%09%3Bmov%09es%2C%20ax%0A%09%3Bmov%09ax%2C%20cs%0A%09%3Bmov%20%09ds%2C%20ax%0A%0A%09mov%09si%2C%20LoaderFileName%09%3B%20ds%3Asi%20-%3E%20%22TEST%20%20%20%20TXT%22%0A%09mov%09di%2C%20OffsetOfLoader%09%3B%20es%3Adi%20-%3E%20BaseOfLoader%3A0100%20%3D%20%0A%0ABaseOfLoader*10h%2B100%0A%09cld%09%09%09%09%3B%E8%AE%BE%E7%BD%AE%E6%96%B9%E5%90%91%E6%A0%87%E5%BF%97%0A%09%0A%09mov%20cx%2C%20%5BBSP_RootEntCnt%5D%0A%09mov%20%5BRootDirectItemNum%5D%2C%20cx%09%3B%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%A1%E6%95%B0%0A%0ALABEL_SEARCH_FOR_LOADERBIN%3A%0A%09cmp%20word%20%5BRootDirectItemNum%5D%2C%200%0A%09jz%20NOLOADER%0A%09dec%20word%20%5BRootDirectItemNum%5D%0A%09%0A%09mov%09cx%2C%2011%0ALABEL_CMP_FILENAME%3A%0A%09cmp%09cx%2C%200%0A%09jz%09LABEL_FILENAME_FOUND%09%3B%20%E5%A6%82%E6%9E%9C%E6%AF%94%E8%BE%83%E4%BA%86%2011%20%E4%B8%AA%E5%AD%97%E7%AC%A6%E9%83%BD%E7%9B%B8%E7%AD%89%2C%20%E8%A1%A8%E7%A4%BA%E6%89%BE%E5%88%B0%0A%09dec%09cx%0A%09lodsb%09%09%09%09%3B%20ds%3Asi%20-%3E%20al%0A%09cmp%09al%2C%20byte%20%5Bes%3Adi%5D%0A%09jz%09LABEL_GO_ON%0A%09jmp%09LABEL_DIFFERENT%09%09%3B%20%E5%8F%AA%E8%A6%81%E5%8F%91%E7%8E%B0%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E5%AD%97%E7%AC%A6%E5%B0%B1%E8%A1%A8%E6%98%8E%E6%9C%AC%20DirectoryEntry%20%E4%B8%8D%E6%98%AF%0A%0ALABEL_GO_ON%3A%0A%09inc%20di%0A%09jmp%20LABEL_CMP_FILENAME%0ALABEL_DIFFERENT%3A%0A%09and%20di%2C%200FFE0h%0A%09add%20di%2C%20020h%0A%09and%20si%2C%20LoaderFileName%0A%09jmp%20LABEL_SEARCH_FOR_LOADERBIN%0ANOLOADER%3A%0A%09mov%20dh%2C%200%0A%09call%20DispStr%0A%09jmp%20%24%0ALABEL_FILENAME_FOUND%3A%0A%09and%20di%2C%200FFE0h%0A%09%0A%09mov%20eax%2C%20%5Bes%3Adi%2B0x1C%5D%0A%09mov%20%5BFileLength%5D%2C%20eax%0A%0A%09add%20di%2C%2001Ah%09%09%3B%20di%20-%3E%20%E9%A6%96%20Sector(%E5%81%8F%E7%A7%BB)%09%0A%09%0A%20%20%20%20%20%20%20%20mov%20cx%2C%20word%20%5Bes%3Adi%5D%0A%09push%20cx%09%09%09%3Bcx%E9%87%8C%E9%9D%A2%E6%94%BE%E7%9A%84%E6%98%AFLoader%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%89%87%E5%8C%BA%E5%8F%B7(%E6%95%B0%E6%8D%AE%E5%8C%BA%E7%9A%84%E4%BB%8E2%E5%BC%80%E5%A7%8B)%0A%3B******************************%0A%3B**%E8%AF%BB%E5%8F%96Fat%E8%A1%A8%20%0A%09mov%20ax%2C%20BaseOfLoader%0A%09sub%20ax%2C%20FatOffset%09%3B%E5%88%86%E9%85%8D5k%E5%86%85%E5%AD%98(512*10%2F1024)%0A%09mov%20es%2C%20ax%0A%09mov%20bx%2C%200%09%09%3B%E5%B0%86Fat%E8%AF%BB%E5%88%B0es%3Abx%0A%09mov%20ax%2C%20%5BBPB_RsvdSecCnt%5D%3BFat%E5%BC%80%E5%A7%8B%E6%89%87%E5%8C%BA%201%0A%09mov%20cl%2C%20%5BBPB_FATSz16%5D%0A%09call%20ReadSector%0A%3B**%E8%AF%BB%E5%8F%96Loader%E5%88%B0%E5%86%85%E5%AD%98*******%0A%09%0A%09mov%20ax%2C%20BaseOfLoader%0A%09mov%20es%2C%20ax%0A%09mov%20bx%2C%20OffsetOfLoader%0A%09pop%20ax%0ALABEL_GOON_LOADING_FILE%3A%0A%09push%20%09ax%09%09%3B%E4%BF%9D%E5%AD%98ax%0A%09add%20%09ax%2C%2017%20%2B%2014%0A%09mov%20%09cl%2C%201%09%3B%E4%B8%80%E4%B8%AA%E6%89%87%E5%8C%BA%0A%09call%20%09ReadSector%0A%09%3B%0A%09pop%20%09ax%09%09%3B%E5%9B%9E%E5%A4%8Dax%0A%09call%20%09GetFATEntry%3B%E8%8E%B7%E5%BE%97%E4%B8%8B%E4%B8%AA%E5%8F%B7%E7%A0%81%09%0A%09%0A%09cmp%20%09ax%2C%200FFFh%0A%09jz%20%09LABEL_FILE_LOADED%0A%09add%20%09bx%2C%20%5BBSB_BytePerSec%5D%0A%09jmp%20%09LABEL_GOON_LOADING_FILE%0ALABEL_FILE_LOADED%3A%0A%09%3B%E6%89%93%E5%8D%B0%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%0A%09mov%20ax%2C%20BaseOfLoader%0A%09mov%20es%2C%20ax%0A%09mov%20bp%2C%20OffsetOfLoader%0A%0A%09mov%09cx%2C%20%5BFileLength%5D%09%3B%20CX%20%3D%20%E4%B8%B2%E9%95%BF%E5%BA%A6%0A%09mov%09ax%2C%2001301h%09%09%3B%20AH%20%3D%2013%2C%20%20AL%20%3D%2001h%0A%09mov%09bx%2C%200006h%09%09%3B%20%E9%A1%B5%E5%8F%B7%E4%B8%BA0(BH%20%3D%200)%20%E9%BB%91%E5%BA%95%E7%99%BD%E5%AD%97(BL%20%3D%2007h)%0A%09mov%09dl%2C%200%0A%09mov%20%09dh%2C%200%0A%09int%0910h%09%09%09%3B%20int%2010h%0A%0A%09jmp%09%24%0A%0A%0A%3B%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%0A%3B%E5%AD%97%E7%AC%A6%E4%B8%B2%0A%3B----------------------------------------------------------------------------%0ALoaderFileName%09%09db%09%22TEST%20%20%20%20TXT%22%2C%200%09%3B%20LOADER.BIN%20%E4%B9%8B%E6%96%87%E4%BB%B6%E5%90%8D%0ARootDirectItemNum%09DW%090%0AFileLength%09%09DW%090%0A%3B%20%E4%B8%BA%E7%AE%80%E5%8C%96%E4%BB%A3%E7%A0%81%2C%20%E4%B8%8B%E9%9D%A2%E6%AF%8F%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E9%95%BF%E5%BA%A6%E5%9D%87%E4%B8%BA%20MessageLength%0AMessageLength%09%09equ%099%0ABootMessage%3A%09%09db%20%22No%20FILE%20%20%22%09%09%3B%207%E5%AD%97%E8%8A%82%0A%3B%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%0A%0A%3B----------------------------------------------------------------------------%0A%3B%20%E5%87%BD%E6%95%B0%E5%90%8D%3A%20DispStr%0A%3B----------------------------------------------------------------------------%0A%3B%20%E4%BD%9C%E7%94%A8%3A%0A%3B%09%E6%98%BE%E7%A4%BA%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%2C%20%E5%87%BD%E6%95%B0%E5%BC%80%E5%A7%8B%E6%97%B6%20dh%20%E4%B8%AD%E5%BA%94%E8%AF%A5%E6%98%AF%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%BA%8F%E5%8F%B7(0-based)%0ADispStr%3A%0A%09push%20ax%0A%09push%20bx%0A%09push%20cx%0A%09push%20dx%0A%09push%20es%0A%09mov%09ax%2C%20MessageLength%0A%09mul%09dh%0A%09add%09ax%2C%20BootMessage%0A%09mov%09bp%2C%20ax%09%09%09%3B%20%E2%94%93%0A%09mov%09ax%2C%20ds%09%09%09%3B%20%E2%94%A3%20ES%3ABP%20%3D%20%E4%B8%B2%E5%9C%B0%E5%9D%80%0A%09mov%09es%2C%20ax%09%09%09%3B%20%E2%94%9B%0A%09mov%09cx%2C%20MessageLength%09%3B%20CX%20%3D%20%E4%B8%B2%E9%95%BF%E5%BA%A6%0A%09mov%09ax%2C%2001301h%09%09%3B%20AH%20%3D%2013%2C%20%20AL%20%3D%2001h%0A%09mov%09bx%2C%200006h%09%09%3B%20%E9%A1%B5%E5%8F%B7%E4%B8%BA0(BH%20%3D%200)%20%E9%BB%91%E5%BA%95%E7%99%BD%E5%AD%97(BL%20%3D%2007h)%0A%09mov%09dl%2C%200%0A%09int%0910h%09%09%09%3B%20int%2010h%0A%09pop%20es%0A%09pop%20dx%0A%09pop%20cx%0A%09pop%20bx%0A%09pop%20ax%0A%09ret%0A%3B----------------------------------------------------------------------------%0A%3B%20%E5%87%BD%E6%95%B0%E5%90%8D%3A%20ReadSector%0A%3B----------------------------------------------------------------------------%0A%3B%20%E4%BD%9C%E7%94%A8%3A%0A%3B%09%E4%BB%8E%E7%AC%AC%20ax%20%E4%B8%AA%20Sector%20%E5%BC%80%E5%A7%8B%2C%20%E5%B0%86%20cl%20%E4%B8%AA%20Sector%20%E8%AF%BB%E5%85%A5%20es%3Abx%20%E4%B8%AD%0AReadSector%3A%0A%09%3B%20-----------------------------------------------------------------------%0A%09%3B%20%E6%80%8E%E6%A0%B7%E7%94%B1%E6%89%87%E5%8C%BA%E5%8F%B7%E6%B1%82%E6%89%87%E5%8C%BA%E5%9C%A8%E7%A3%81%E7%9B%98%E4%B8%AD%E7%9A%84%E4%BD%8D%E7%BD%AE%20(%E6%89%87%E5%8C%BA%E5%8F%B7%20-%3E%20%E6%9F%B1%E9%9D%A2%E5%8F%B7%2C%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%2C%20%E7%A3%81%E5%A4%B4%E5%8F%B7)%0A%09%3B%20-----------------------------------------------------------------------%0A%09%3B%20%E8%AE%BE%E6%89%87%E5%8C%BA%E5%8F%B7%E4%B8%BA%20x%0A%09%3B%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%94%8C%20%E6%9F%B1%E9%9D%A2%E5%8F%B7%20%3D%20y%20%3E%3E%201%0A%09%3B%20%20%20%20%20%20%20x%20%20%20%20%20%20%20%20%20%20%20%E2%94%8C%20%E5%95%86%20y%20%E2%94%A4%0A%09%3B%20--------------%20%3D%3E%20%E2%94%A4%20%20%20%20%20%20%E2%94%94%20%E7%A3%81%E5%A4%B4%E5%8F%B7%20%3D%20y%20%26%201%0A%09%3B%20%20%E6%AF%8F%E7%A3%81%E9%81%93%E6%89%87%E5%8C%BA%E6%95%B0%20%20%20%20%20%E2%94%82%0A%09%3B%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%94%94%20%E4%BD%99%20z%20%3D%3E%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%E5%8F%B7%20%3D%20z%20%2B%201%0A%09push%09bp%0A%09mov%09bp%2C%20sp%0A%09sub%09esp%2C%202%09%09%09%3B%20%E8%BE%9F%E5%87%BA%E4%B8%A4%E4%B8%AA%E5%AD%97%E8%8A%82%E7%9A%84%E5%A0%86%E6%A0%88%E5%8C%BA%E5%9F%9F%E4%BF%9D%E5%AD%98%E8%A6%81%E8%AF%BB%E7%9A%84%E6%89%87%E5%8C%BA%E6%95%B0%3A%20byte%20%0A%0A%5Bbp-2%5D%0A%0A%09mov%09byte%20%5Bbp-2%5D%2C%20cl%0A%09push%09bx%09%09%09%3B%20%E4%BF%9D%E5%AD%98%20bx%0A%09mov%09bl%2C%20%5BBPB_SecPerTrk%5D%09%3B%20bl%3A%20%E9%99%A4%E6%95%B0%0A%09div%09bl%09%09%09%3B%20y%20%E5%9C%A8%20al%20%E4%B8%AD%2C%20z%20%E5%9C%A8%20ah%20%E4%B8%AD%0A%09inc%09ah%09%09%09%3B%20z%20%2B%2B%0A%09mov%09cl%2C%20ah%09%09%09%3B%20cl%20%3C-%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%E5%8F%B7%0A%09mov%09dh%2C%20al%09%09%09%3B%20dh%20%3C-%20y%0A%09shr%09al%2C%201%09%09%09%3B%20y%20%3E%3E%201%20(%E5%85%B6%E5%AE%9E%E6%98%AF%20y%2FBPB_NumHeads%2C%20%E8%BF%99%E9%87%8C%0A%0ABPB_NumHeads%3D2)%0A%09mov%09ch%2C%20al%09%09%09%3B%20ch%20%3C-%20%E6%9F%B1%E9%9D%A2%E5%8F%B7%0A%09and%09dh%2C%201%09%09%09%3B%20dh%20%26%201%20%3D%20%E7%A3%81%E5%A4%B4%E5%8F%B7%0A%09pop%09bx%09%09%09%3B%20%E6%81%A2%E5%A4%8D%20bx%0A%09%3B%20%E8%87%B3%E6%AD%A4%2C%20%22%E6%9F%B1%E9%9D%A2%E5%8F%B7%2C%20%E8%B5%B7%E5%A7%8B%E6%89%87%E5%8C%BA%2C%20%E7%A3%81%E5%A4%B4%E5%8F%B7%22%20%E5%85%A8%E9%83%A8%E5%BE%97%E5%88%B0%20%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%5E%0A%09mov%09dl%2C%20%5BBS_DrvNum%5D%09%09%3B%20%E9%A9%B1%E5%8A%A8%E5%99%A8%E5%8F%B7%20(0%20%E8%A1%A8%E7%A4%BA%20A%20%E7%9B%98)%0A.GoOnReading%3A%0A%09mov%09ah%2C%202%09%09%09%3B%20%E8%AF%BB%0A%09mov%09al%2C%20byte%20%5Bbp-2%5D%09%09%3B%20%E8%AF%BB%20al%20%E4%B8%AA%E6%89%87%E5%8C%BA%0A%09int%0913h%0A%09jc%09.GoOnReading%09%09%3B%20%E5%A6%82%E6%9E%9C%E8%AF%BB%E5%8F%96%E9%94%99%E8%AF%AF%20CF%20%E4%BC%9A%E8%A2%AB%E7%BD%AE%E4%B8%BA%201%2C%20%E8%BF%99%E6%97%B6%E5%B0%B1%E4%B8%8D%E5%81%9C%E5%9C%B0%E8%AF%BB%2C%20%E7%9B%B4%E5%88%B0%0A%0A%E6%AD%A3%E7%A1%AE%E4%B8%BA%E6%AD%A2%0A%0A%09add%09esp%2C%202%0A%09pop%09bp%0A%0A%09ret%0A%09%0A%3B----------------------------------------------------------------------------%0A%3B%20%E5%87%BD%E6%95%B0%E5%90%8D%3A%20GetFATEntry%0A%3B----------------------------------------------------------------------------%0A%3B%20%E4%BD%9C%E7%94%A8%3A%20ax%0A%3B%09%0AGetFATEntry%3A%0A%09push%20bp%0A%09mov%20bp%2C%20sp%0A%09sub%20esp%2C%202%0A%09mov%20word%20%5Bbp-2%5D%2C%200%0A%09push%20es%20%0A%09push%20bx%0A%09push%20dx%0A%09mov%20bx%2C%203%0A%09mul%20bx%09%09%09%09%3Bax%20%3D%20ax%20*%203%0A%09mov%20bx%2C%202%0A%09div%20bx%09%09%09%09%3B%E5%95%86%E5%9C%A8ax%20%E4%BD%99%E6%95%B0%E5%9C%A8dx%0A%09cmp%20dx%2C%200%0A%09jz%20LABEL_EVEN%09%09%09%3B%E5%81%B6%E6%95%B0%0A%09mov%20word%20%5Bbp-2%5D%2C%201%09%09%3B%E5%A5%87%E6%95%B0%0ALABEL_EVEN%3A%0A%09mov%20bx%2C%20ax%0A%09mov%20ax%2C%20BaseOfLoader%0A%09sub%20ax%2C%20FatOffset%0A%09mov%20es%2C%20ax%0A%09mov%20word%20ax%2C%20%5Bes%3Abx%5D%0A%09cmp%20word%20%5Bbp-2%5D%2C%200%0A%09jz%20LABEL_EVEN_2%0A%09shr%20ax%2C%204%0ALABEL_EVEN_2%3A%0A%09and%20ax%2C%200FFFh%09%09%09%3B%E4%BD%8E%E5%8D%81%E4%BA%8C%E4%BD%8D%0A%09pop%20dx%0A%09pop%20bx%0A%09pop%20es%0A%09add%20esp%2C%202%0A%09pop%20bp%0A%09ret%0Atimes%20510-(%24-%24%24)%20db%200%09%09%09%3B%E5%A1%AB%E5%85%85%E5%89%A9%E4%BD%99%E7%9A%84%E7%A9%BA%E9%97%B4%EF%BC%8C%E6%98%AF%E7%94%9F%E6%88%90%E7%9A%84%E4%BB%A3%E7%A0%81%E6%AD%A3%E5%A5%BD%E4%B8%BA512B%0Adw%090xaa55%09%09%09%09%3B%E7%BB%93%E6%9D%9F%E6%A0%87%E8%AE%B0%09" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-default" start="1"><li><span><span>;*******************************************************************************</span><span class="number">80</span><span>&nbsp;&nbsp;</span></span></li><li><span>;**boot.asm&nbsp;软盘引导分区&nbsp;&nbsp;</span></li><li><span>;*******************************************************************************&nbsp;&nbsp;</span></li><li><span>org&nbsp;07c00h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;BIOS
+将把Boot&nbsp;Sector开机加载到&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;地址<span class="number">0000</span><span>:7c00&nbsp;并执行&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>;==宏===========================================================================&nbsp;&nbsp;</span></li><li><span>BaseOfStack&nbsp;equ&nbsp;07c00h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;boot状态下的堆栈基地址(注意堆栈是向下&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+生长的)&nbsp;&nbsp;</span></li><li><span>;Loader&nbsp;address&nbsp;&nbsp;</span></li><li><span>BaseOfLoader&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equ&nbsp;&nbsp;09000h&nbsp;;TEST.TXT&nbsp;
+被加载到的位置&nbsp;----&nbsp;&nbsp;段地址&nbsp;&nbsp;</span></li><li><span>OffsetOfLoader&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equ&nbsp;&nbsp;&nbsp;0100h&nbsp;;TEST.TXT&nbsp;
+被加载到的位置&nbsp;----&nbsp;偏移地&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+址&nbsp;(共63K的大小)&nbsp;&nbsp;</span></li><li><span>;FAT12&nbsp;&nbsp;</span></li><li><span>SectorNoOfRootDirectory&nbsp;equ&nbsp;<span class="number">19</span><span>&nbsp;&nbsp;;Root&nbsp;Directory&nbsp;的第一个扇区号=&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;BPB_RsvdSecCnt&nbsp;+&nbsp;(BPB_NumFATs&nbsp;*&nbsp;FATSz)&nbsp;&nbsp;</span></li><li><span>RootDirSectors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equ&nbsp;<span class="number">14</span><span>&nbsp;&nbsp;;&nbsp;根目录占用空间:&nbsp;RootDirSectors&nbsp;=&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;((BPB_RootEntCnt&nbsp;*&nbsp;<span class="number">32</span><span>)&nbsp;+&nbsp;(BPB_BytsPerSec&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;–&nbsp;<span class="number">1</span><span>))&nbsp;/&nbsp;BPB_BytsPerSec;&nbsp;但如果按照此公&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+式代码过长&nbsp;&nbsp;</span></li><li><span>FatOffset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;120h&nbsp;&nbsp;&nbsp;&nbsp;;FAT
+表缓冲偏移&nbsp;&nbsp;</span></li><li><span>;===============================================================================&nbsp;&nbsp;</span></li><li><span>jmp&nbsp;short&nbsp;LABEL_START&nbsp;&nbsp;</span></li><li><span>nop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;必不可少的&nbsp;&nbsp;</span></li><li><span>;**以下是FAT12的磁盘头的定义************&nbsp;&nbsp;</span></li><li><span>BS_OEMName&nbsp;&nbsp;DB&nbsp;<span class="string">'SongYang'</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;OEM&nbsp;String,&nbsp;必须&nbsp;</span><span class="number">8</span><span>&nbsp;个字节&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BSB_BytePerSec&nbsp;&nbsp;DW&nbsp;<span class="number">512</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每扇区字节数&nbsp;&nbsp;</span></span></li><li><span>BSP_SecPerClus&nbsp;&nbsp;Db&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每簇多少扇区&nbsp;&nbsp;</span></span></li><li><span>BPB_RsvdSecCnt&nbsp;&nbsp;DW&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;Boot&nbsp;记录占用多少扇区&nbsp;&nbsp;</span></span></li><li><span>BSP_NumFats&nbsp;DB&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;共有多少&nbsp;FAT&nbsp;表&nbsp;&nbsp;</span></span></li><li><span>BSP_RootEntCnt&nbsp;&nbsp;DW&nbsp;<span class="number">224</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;根目录文件数最大值&nbsp;&nbsp;</span></span></li><li><span>BSP_TotSec16&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;<span class="number">2880</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;逻辑扇区总数&nbsp;&nbsp;</span></span></li><li><span>BPB_Media&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="number">0xF0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;媒体描述符&nbsp;&nbsp;</span></span></li><li><span>BPB_FATSz16&nbsp;DW&nbsp;<span class="number">9</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每FAT扇区数&nbsp;&nbsp;</span></span></li><li><span>BPB_SecPerTrk&nbsp;&nbsp;&nbsp;DW&nbsp;<span class="number">18</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;每磁道扇区数&nbsp;&nbsp;</span></span></li><li><span>BPB_NumHeads&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;磁头数(面数)&nbsp;&nbsp;</span></span></li><li><span>BPB_HiddSec&nbsp;DD&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;隐藏扇区数&nbsp;&nbsp;</span></span></li><li><span>BPB_TotSec32&nbsp;&nbsp;&nbsp;&nbsp;DD&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;如果&nbsp;wTotalSectorCount&nbsp;是</span><span class="number">0</span><span>由这个值记录&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+扇区数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BS_DrvNum&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;中断&nbsp;</span><span class="number">13</span><span>&nbsp;的驱动器号&nbsp;&nbsp;</span></span></li><li><span>BS_Reserved1&nbsp;&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;未使用&nbsp;&nbsp;</span></span></li><li><span>BS_BootSig&nbsp;&nbsp;DB&nbsp;29h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;扩展引导标记&nbsp;(29h)&nbsp;&nbsp;</span></li><li><span>BS_VolID&nbsp;&nbsp;&nbsp;&nbsp;DD&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;卷序列号&nbsp;&nbsp;</span></span></li><li><span>BS_Volab&nbsp;&nbsp;&nbsp;&nbsp;DB&nbsp;<span class="string">'Tinix0.01&nbsp;&nbsp;'</span><span>&nbsp;&nbsp;&nbsp;&nbsp;;卷标,&nbsp;必须&nbsp;</span><span class="number">11</span><span>&nbsp;个字节&nbsp;&nbsp;</span></span></li><li><span>BS_FileSysType&nbsp;&nbsp;DB&nbsp;<span class="string">'FAT12&nbsp;&nbsp;&nbsp;'</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;文件系统类型,&nbsp;必须&nbsp;</span><span class="number">8</span><span>个字节&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>LABEL_START:&nbsp;&nbsp;</span></li><li><span>;**初始化寄存器*************************&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;cs&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ds,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ss,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;sp,&nbsp;BaseOfStack&nbsp;&nbsp;</span></li><li><span>;**清屏*********************************&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;0600h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;AH&nbsp;=&nbsp;<span class="number">6</span><span>,&nbsp;&nbsp;AL&nbsp;=&nbsp;0h&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;0700h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+黑底白字(BL&nbsp;=&nbsp;07h)&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;左上角:&nbsp;(</span><span class="number">0</span><span>,&nbsp;</span><span class="number">0</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dx,&nbsp;0184fh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;右下角:&nbsp;(<span class="number">80</span><span>,&nbsp;</span><span class="number">50</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;10h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;int&nbsp;10h&nbsp;&nbsp;</span></li><li><span>;**软驱复位*****************************&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;xor&nbsp;ah,&nbsp;ah&nbsp;&nbsp;;&nbsp;┓&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;xor&nbsp;dl,&nbsp;dl&nbsp;&nbsp;;&nbsp;┣&nbsp;软驱复位&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;13h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;┛&nbsp;&nbsp;</span></li><li><span>;**在软盘中寻找Loader.bin(FAT12)********&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;**将根目录整个的都读到es:bx处&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;es&nbsp;&lt;-&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;OffsetOfLoader&nbsp;&nbsp;;&nbsp;bx&nbsp;&lt;-&nbsp;OffsetOfLoader&nbsp;&nbsp;&nbsp;
+于是,&nbsp;es:bx&nbsp;=&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BaseOfLoader:OffsetOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;SectorNoOfRootDirectory&nbsp;;&nbsp;ax&nbsp;&lt;-&nbsp;Root&nbsp;Directory&nbsp;
+中的某&nbsp;Sector&nbsp;号&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cl,&nbsp;RootDirSectors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;将根目录都读出来&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;&nbsp;&nbsp;&nbsp;ReadSector&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;mov&nbsp;&nbsp;&nbsp;&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;mov&nbsp;&nbsp;&nbsp;&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;mov&nbsp;&nbsp;&nbsp;&nbsp;ax,&nbsp;cs&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;mov&nbsp;&nbsp;&nbsp;&nbsp;ds,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;si,&nbsp;LoaderFileName&nbsp;&nbsp;;&nbsp;ds:si&nbsp;-&gt;&nbsp;<span class="string">"TEST&nbsp;&nbsp;&nbsp;&nbsp;TXT"</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;di,&nbsp;OffsetOfLoader&nbsp;&nbsp;;&nbsp;es:di&nbsp;-&gt;&nbsp;BaseOfLoader:<span class="number">0100</span><span>&nbsp;=&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BaseOfLoader*10h+<span class="number">100</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cld&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;设置方向标志&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;[BSP_RootEntCnt]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;[RootDirectItemNum],&nbsp;cx&nbsp;;根目录的条数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>LABEL_SEARCH_FOR_LOADERBIN:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;word&nbsp;[RootDirectItemNum],&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;NOLOADER&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;dec&nbsp;word&nbsp;[RootDirectItemNum]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;<span class="number">11</span><span>&nbsp;&nbsp;</span></span></li><li><span>LABEL_CMP_FILENAME:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;cx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;&nbsp;LABEL_FILENAME_FOUND&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;如果比较了&nbsp;<span class="number">11</span><span>&nbsp;个字符都相等,&nbsp;表示找到&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;dec&nbsp;cx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;lodsb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;ds:si&nbsp;-&gt;&nbsp;al&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;al,&nbsp;byte&nbsp;[es:di]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;&nbsp;LABEL_GO_ON&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;LABEL_DIFFERENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+只要发现不一样的字符就表明本&nbsp;DirectoryEntry&nbsp;不是&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>LABEL_GO_ON:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;inc&nbsp;di&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;LABEL_CMP_FILENAME&nbsp;&nbsp;</span></li><li><span>LABEL_DIFFERENT:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;di,&nbsp;0FFE0h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;di,&nbsp;020h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;si,&nbsp;LoaderFileName&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;LABEL_SEARCH_FOR_LOADERBIN&nbsp;&nbsp;</span></li><li><span>NOLOADER:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dh,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;DispStr&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;$&nbsp;&nbsp;</span></li><li><span>LABEL_FILENAME_FOUND:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;di,&nbsp;0FFE0h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;[es:di+<span class="number">0x1C</span><span>]&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;[FileLength],&nbsp;eax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;di,&nbsp;01Ah&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;di&nbsp;-&gt;&nbsp;
+首&nbsp;Sector(偏移)&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;word&nbsp;[es:di]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;cx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;cx里面放的是Loader的第一个扇区号(数据区的从<span class="number">2</span><span>开始)&nbsp;&nbsp;</span></span></li><li><span>;******************************&nbsp;&nbsp;</span></li><li><span>;**读取Fat表&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;ax,&nbsp;FatOffset&nbsp;&nbsp;&nbsp;;分配5k内存(<span class="number">512</span><span>*</span><span class="number">10</span><span>/</span><span class="number">1024</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;将Fat读到es:bx&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;[BPB_RsvdSecCnt];Fat开始扇区&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cl,&nbsp;[BPB_FATSz16]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;ReadSector&nbsp;&nbsp;</span></li><li><span>;**读取Loader到内存*******&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;OffsetOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;ax&nbsp;&nbsp;</span></li><li><span>LABEL_GOON_LOADING_FILE:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;&nbsp;&nbsp;&nbsp;ax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;保存ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ax,&nbsp;<span class="number">17</span><span>&nbsp;+&nbsp;</span><span class="number">14</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cl,&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;;一个扇区&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;&nbsp;&nbsp;&nbsp;ReadSector&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;回复ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;&nbsp;&nbsp;&nbsp;GetFATEntry;获得下个号码&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ax,&nbsp;0FFFh&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;&nbsp;LABEL_FILE_LOADED&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bx,&nbsp;[BSB_BytePerSec]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LABEL_GOON_LOADING_FILE&nbsp;&nbsp;</span></li><li><span>LABEL_FILE_LOADED:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;打印文件内容&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bp,&nbsp;OffsetOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;[FileLength]&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;CX&nbsp;=&nbsp;串长度&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;01301h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;AH&nbsp;=&nbsp;<span class="number">13</span><span>,&nbsp;&nbsp;AL&nbsp;=&nbsp;01h&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;0006h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;页号为<span class="number">0</span><span>(BH&nbsp;=&nbsp;</span><span class="number">0</span><span>)&nbsp;黑底白字(BL&nbsp;=&nbsp;07h)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dl,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dh,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;10h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;int&nbsp;10h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jmp&nbsp;$&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>;============================================================================&nbsp;&nbsp;</span></li><li><span>;字符串&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>LoaderFileName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db&nbsp;&nbsp;<span class="string">"TEST&nbsp;&nbsp;&nbsp;&nbsp;TXT"</span><span>,&nbsp;</span><span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;LOADER.BIN&nbsp;之文件名&nbsp;&nbsp;</span></span></li><li><span>RootDirectItemNum&nbsp;&nbsp;&nbsp;DW&nbsp;&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>FileLength&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>;&nbsp;为简化代码,&nbsp;下面每个字符串的长度均为&nbsp;MessageLength&nbsp;&nbsp;</span></li><li><span>MessageLength&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equ&nbsp;<span class="number">9</span><span>&nbsp;&nbsp;</span></span></li><li><span>BootMessage:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db&nbsp;<span class="string">"No&nbsp;FILE&nbsp;&nbsp;"</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;</span><span class="number">7</span><span>字节&nbsp;&nbsp;</span></span></li><li><span>;============================================================================&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;函数名:&nbsp;DispStr&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;作用:&nbsp;&nbsp;</span></li><li><span>;&nbsp;&nbsp;&nbsp;显示一个字符串,&nbsp;函数开始时&nbsp;dh&nbsp;中应该是字符串序号(<span class="number">0</span><span>-based)&nbsp;&nbsp;</span></span></li><li><span>DispStr:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;cx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;es&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;MessageLength&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mul&nbsp;dh&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;ax,&nbsp;BootMessage&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bp,&nbsp;ax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;┓&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;ds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;┣&nbsp;ES:BP&nbsp;=&
+nbsp;串地址&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;┛&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cx,&nbsp;MessageLength&nbsp;&nbsp;&nbsp;;&nbsp;CX&nbsp;=&nbsp;串长度&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;01301h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;AH&nbsp;=&nbsp;<span class="number">13</span><span>,&nbsp;&nbsp;AL&nbsp;=&nbsp;01h&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;0006h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;页号为<span class="number">0</span><span>(BH&nbsp;=&nbsp;</span><span class="number">0</span><span>)&nbsp;黑底白字(BL&nbsp;=&nbsp;07h)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dl,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;10h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;int&nbsp;10h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;es&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;cx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ret&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;函数名:&nbsp;ReadSector&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;作用:&nbsp;&nbsp;</span></li><li><span>;&nbsp;&nbsp;&nbsp;
+从第&nbsp;ax&nbsp;个&nbsp;Sector&nbsp;开始,&nbsp;将&nbsp;cl&nbsp;
+个&nbsp;Sector&nbsp;读入&nbsp;es:bx&nbsp;中&nbsp;&nbsp;</span></li><li><span>ReadSector:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;-----------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;怎样由扇区号求扇区在磁盘中的位置&nbsp;(扇区号&nbsp;-&gt;&nbsp;柱面号,&nbsp;起始扇区,&nbsp;磁头号)&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;-----------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;设扇区号为&nbsp;x&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌&nbsp;
+柱面号&nbsp;=&nbsp;y&nbsp;&gt;&gt;&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌&nbsp;
+商&nbsp;y&nbsp;┤&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;--------------&nbsp;=&
+gt;&nbsp;┤&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└&nbsp;磁头号&nbsp;=&nbsp;y&
+nbsp;&amp;&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;每磁道扇区数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└&nbsp;
+余&nbsp;z&nbsp;=&gt;&nbsp;起始扇区号&nbsp;=&nbsp;z&nbsp;+&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;&nbsp;&nbsp;&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bp,&nbsp;sp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;辟出两个字节的堆栈区域保存要读的扇区数:&nbsp;byte&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>[bp-<span class="number">2</span><span>]&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;byte&nbsp;[bp-<span class="number">2</span><span>],&nbsp;cl&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;&nbsp;&nbsp;&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+保存&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bl,&nbsp;[BPB_SecPerTrk]&nbsp;;&nbsp;bl:&nbsp;除数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;bl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;y&nbsp;
+在&nbsp;al&nbsp;中,&nbsp;z&nbsp;在&nbsp;ah&nbsp;中&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;inc&nbsp;ah&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;z&nbsp;++&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;cl,&nbsp;ah&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;cl&nbsp;&lt;-&nbsp;
+起始扇区号&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dh,&nbsp;al&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;dh&nbsp;&lt;-&nbsp;y&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;shr&nbsp;al,&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;y&nbsp;&gt;&gt;&nbsp;</span><span class="number">1</span><span>&nbsp;(其实是&nbsp;y/BPB_NumHeads,&nbsp;这里&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>BPB_NumHeads=<span class="number">2</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ch,&nbsp;al&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;ch&nbsp;&lt;-&nbsp;
+柱面号&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;dh,&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;dh&nbsp;&amp;&nbsp;</span><span class="number">1</span><span>&nbsp;=&nbsp;磁头号&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;恢复&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;至此,&nbsp;<span class="string">"柱面号,&nbsp;起始扇区,&nbsp;磁头号"</span><span>&nbsp;全部得到&nbsp;^^^^^^^^^^^^^^^^^^^^^^^^&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dl,&nbsp;[BS_DrvNum]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;驱动器号&nbsp;(<span class="number">0</span><span>&nbsp;表示&nbsp;A&nbsp;盘)&nbsp;&nbsp;</span></span></li><li><span>.GoOnReading:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ah,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;读&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;al,&nbsp;byte&nbsp;[bp-<span class="number">2</span><span>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;读&nbsp;al&nbsp;个扇区&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;13h&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jc&nbsp;&nbsp;.GoOnReading&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;
+如果读取错误&nbsp;CF&nbsp;会被置为&nbsp;<span class="number">1</span><span>,&nbsp;这时就不停地读,&nbsp;直到&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>正确为止&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ret&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;函数名:&nbsp;GetFATEntry&nbsp;&nbsp;</span></li><li><span>;----------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>;&nbsp;作用:&nbsp;ax&nbsp;&nbsp;</span></li><li><span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>GetFATEntry:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bp,&nbsp;sp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;word&nbsp;[bp-<span class="number">2</span><span>],&nbsp;</span><span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;es&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;<span class="number">3</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mul&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;ax&nbsp;=&nbsp;ax&nbsp;*&nbsp;<span class="number">3</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;bx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+商在ax&nbsp;余数在dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;dx,&nbsp;<span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;LABEL_EVEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;偶数&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;word&nbsp;[bp-<span class="number">2</span><span>],&nbsp;</span><span class="number">1</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;奇数&nbsp;&nbsp;</span></span></li><li><span>LABEL_EVEN:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;bx,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ax,&nbsp;BaseOfLoader&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;ax,&nbsp;FatOffset&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;es,&nbsp;ax&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;word&nbsp;ax,&nbsp;[es:bx]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;cmp&nbsp;word&nbsp;[bp-<span class="number">2</span><span>],&nbsp;</span><span class="number">0</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;jz&nbsp;LABEL_EVEN_2&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;shr&nbsp;ax,&nbsp;<span class="number">4</span><span>&nbsp;&nbsp;</span></span></li><li><span>LABEL_EVEN_2:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;ax,&nbsp;0FFFh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+低十二位&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;dx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bx&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;es&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;esp,&nbsp;<span class="number">2</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;bp&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;ret&nbsp;&nbsp;</span></li><li><span>times&nbsp;<span class="number">510</span><span>-($-$$)&nbsp;db&nbsp;</span><span class="number">0</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;填充剩余的空间，是生成的代码正好为512B&nbsp;&nbsp;</span></span></li><li><span>dw&nbsp;&nbsp;<span class="number">0xaa55</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;结束标记&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span></li></ol></div><pre title="FAT12文件格式" pre_index="6" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="NASM" name="code">;*******************************************************************************80
+;**boot.asm 软盘引导分区
+;*******************************************************************************
+org 07c00h				;BIOS将把Boot Sector开机加载到 
+					;地址0000:7c00 并执行
+
+;==宏===========================================================================
+BaseOfStack	equ	07c00h		;boot状态下的堆栈基地址(注意堆栈是向下
+					;生长的)
+;Loader address
+BaseOfLoader		equ	 09000h	;TEST.TXT 被加载到的位置 ----  段地址
+OffsetOfLoader		equ	  0100h	;TEST.TXT 被加载到的位置 ---- 偏移地
+					;址 (共63K的大小)
+;FAT12
+SectorNoOfRootDirectory	equ	19	;Root Directory 的第一个扇区号= 
+					;BPB_RsvdSecCnt + (BPB_NumFATs * FATSz)
+RootDirSectors		equ	14	; 根目录占用空间: RootDirSectors = 
+					;((BPB_RootEntCnt * 32) + (BPB_BytsPerSec
+					; – 1)) / BPB_BytsPerSec; 但如果按照此公
+					;式代码过长
+FatOffset		equ 	120h	;FAT表缓冲偏移
+;===============================================================================
+jmp short LABEL_START
+nop				   	;必不可少的
+;**以下是FAT12的磁盘头的定义************
+BS_OEMName	DB 'SongYang'		;OEM String, 必须 8 个字节
+
+BSB_BytePerSec	DW 512			;每扇区字节数
+BSP_SecPerClus	Db 1			;每簇多少扇区
+BPB_RsvdSecCnt	DW 1			;Boot 记录占用多少扇区
+BSP_NumFats	DB 2			;共有多少 FAT 表
+BSP_RootEntCnt	DW 224			;根目录文件数最大值
+BSP_TotSec16	DW 2880			;逻辑扇区总数
+BPB_Media	DB 0xF0			;媒体描述符
+BPB_FATSz16	DW 9			;每FAT扇区数
+BPB_SecPerTrk	DW 18			;每磁道扇区数
+BPB_NumHeads	DW 2			;磁头数(面数)
+BPB_HiddSec	DD 0			;隐藏扇区数
+BPB_TotSec32	DD 0			;如果 wTotalSectorCount 是0由这个值记录
+					;扇区数
+
+BS_DrvNum	DB 0			;中断 13 的驱动器号
+BS_Reserved1	DB 0			;未使用
+BS_BootSig	DB 29h			;扩展引导标记 (29h)
+BS_VolID	DD 0			;卷序列号
+BS_Volab	DB 'Tinix0.01  '	;卷标, 必须 11 个字节
+BS_FileSysType	DB 'FAT12   '		;文件系统类型, 必须 8个字节
+
+LABEL_START:
+;**初始化寄存器*************************
+	mov ax, cs
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	mov sp, BaseOfStack
+;**清屏*********************************
+	mov	ax, 0600h		; AH = 6,  AL = 0h
+	mov	bx, 0700h		; 黑底白字(BL = 07h)
+	mov	cx, 0			; 左上角: (0, 0)
+	mov	dx, 0184fh		; 右下角: (80, 50)
+	int	10h			; int 10h
+;**软驱复位*****************************
+	xor ah,	ah	; ┓
+	xor dl,	dl	; ┣ 软驱复位
+	int 13h		; ┛
+;**在软盘中寻找Loader.bin(FAT12)********
+	;**将根目录整个的都读到es:bx处
+	mov	ax, BaseOfLoader
+	mov	es, ax			; es &lt;- BaseOfLoader
+	mov	bx, OffsetOfLoader	; bx &lt;- OffsetOfLoader	于是, es:bx = 
+
+BaseOfLoader:OffsetOfLoader
+	mov	ax, SectorNoOfRootDirectory	; ax &lt;- Root Directory 中的某 Sector 号
+	mov	cl, RootDirSectors      ;将根目录都读出来
+	call	ReadSector
+	
+	;mov	ax, BaseOfLoader
+	;mov	es, ax
+	;mov	ax, cs
+	;mov 	ds, ax
+
+	mov	si, LoaderFileName	; ds:si -&gt; "TEST    TXT"
+	mov	di, OffsetOfLoader	; es:di -&gt; BaseOfLoader:0100 = 
+
+BaseOfLoader*10h+100
+	cld				;设置方向标志
+	
+	mov cx, [BSP_RootEntCnt]
+	mov [RootDirectItemNum], cx	;根目录的条数
+
+LABEL_SEARCH_FOR_LOADERBIN:
+	cmp word [RootDirectItemNum], 0
+	jz NOLOADER
+	dec word [RootDirectItemNum]
+	
+	mov	cx, 11
+LABEL_CMP_FILENAME:
+	cmp	cx, 0
+	jz	LABEL_FILENAME_FOUND	; 如果比较了 11 个字符都相等, 表示找到
+	dec	cx
+	lodsb				; ds:si -&gt; al
+	cmp	al, byte [es:di]
+	jz	LABEL_GO_ON
+	jmp	LABEL_DIFFERENT		; 只要发现不一样的字符就表明本 DirectoryEntry 不是
+
+LABEL_GO_ON:
+	inc di
+	jmp LABEL_CMP_FILENAME
+LABEL_DIFFERENT:
+	and di, 0FFE0h
+	add di, 020h
+	and si, LoaderFileName
+	jmp LABEL_SEARCH_FOR_LOADERBIN
+NOLOADER:
+	mov dh, 0
+	call DispStr
+	jmp $
+LABEL_FILENAME_FOUND:
+	and di, 0FFE0h
+	
+	mov eax, [es:di+0x1C]
+	mov [FileLength], eax
+
+	add di, 01Ah		; di -&gt; 首 Sector(偏移)	
+	
+        mov cx, word [es:di]
+	push cx			;cx里面放的是Loader的第一个扇区号(数据区的从2开始)
+;******************************
+;**读取Fat表 
+	mov ax, BaseOfLoader
+	sub ax, FatOffset	;分配5k内存(512*10/1024)
+	mov es, ax
+	mov bx, 0		;将Fat读到es:bx
+	mov ax, [BPB_RsvdSecCnt];Fat开始扇区 1
+	mov cl, [BPB_FATSz16]
+	call ReadSector
+;**读取Loader到内存*******
+	
+	mov ax, BaseOfLoader
+	mov es, ax
+	mov bx, OffsetOfLoader
+	pop ax
+LABEL_GOON_LOADING_FILE:
+	push 	ax		;保存ax
+	add 	ax, 17 + 14
+	mov 	cl, 1	;一个扇区
+	call 	ReadSector
+	;
+	pop 	ax		;回复ax
+	call 	GetFATEntry;获得下个号码	
+	
+	cmp 	ax, 0FFFh
+	jz 	LABEL_FILE_LOADED
+	add 	bx, [BSB_BytePerSec]
+	jmp 	LABEL_GOON_LOADING_FILE
+LABEL_FILE_LOADED:
+	;打印文件内容
+	mov ax, BaseOfLoader
+	mov es, ax
+	mov bp, OffsetOfLoader
+
+	mov	cx, [FileLength]	; CX = 串长度
+	mov	ax, 01301h		; AH = 13,  AL = 01h
+	mov	bx, 0006h		; 页号为0(BH = 0) 黑底白字(BL = 07h)
+	mov	dl, 0
+	mov 	dh, 0
+	int	10h			; int 10h
+
+	jmp	$
+
+
+;============================================================================
+;字符串
+;----------------------------------------------------------------------------
+LoaderFileName		db	"TEST    TXT", 0	; LOADER.BIN 之文件名
+RootDirectItemNum	DW	0
+FileLength		DW	0
+; 为简化代码, 下面每个字符串的长度均为 MessageLength
+MessageLength		equ	9
+BootMessage:		db "No FILE  "		; 7字节
+;============================================================================
+
+;----------------------------------------------------------------------------
+; 函数名: DispStr
+;----------------------------------------------------------------------------
+; 作用:
+;	显示一个字符串, 函数开始时 dh 中应该是字符串序号(0-based)
+DispStr:
+	push ax
+	push bx
+	push cx
+	push dx
+	push es
+	mov	ax, MessageLength
+	mul	dh
+	add	ax, BootMessage
+	mov	bp, ax			; ┓
+	mov	ax, ds			; ┣ ES:BP = 串地址
+	mov	es, ax			; ┛
+	mov	cx, MessageLength	; CX = 串长度
+	mov	ax, 01301h		; AH = 13,  AL = 01h
+	mov	bx, 0006h		; 页号为0(BH = 0) 黑底白字(BL = 07h)
+	mov	dl, 0
+	int	10h			; int 10h
+	pop es
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+;----------------------------------------------------------------------------
+; 函数名: ReadSector
+;----------------------------------------------------------------------------
+; 作用:
+;	从第 ax 个 Sector 开始, 将 cl 个 Sector 读入 es:bx 中
+ReadSector:
+	; -----------------------------------------------------------------------
+	; 怎样由扇区号求扇区在磁盘中的位置 (扇区号 -&gt; 柱面号, 起始扇区, 磁头号)
+	; -----------------------------------------------------------------------
+	; 设扇区号为 x
+	;                           ┌ 柱面号 = y &gt;&gt; 1
+	;       x           ┌ 商 y ┤
+	; -------------- =&gt; ┤      └ 磁头号 = y &amp; 1
+	;  每磁道扇区数     │
+	;                   └ 余 z =&gt; 起始扇区号 = z + 1
+	push	bp
+	mov	bp, sp
+	sub	esp, 2			; 辟出两个字节的堆栈区域保存要读的扇区数: byte 
+
+[bp-2]
+
+	mov	byte [bp-2], cl
+	push	bx			; 保存 bx
+	mov	bl, [BPB_SecPerTrk]	; bl: 除数
+	div	bl			; y 在 al 中, z 在 ah 中
+	inc	ah			; z ++
+	mov	cl, ah			; cl &lt;- 起始扇区号
+	mov	dh, al			; dh &lt;- y
+	shr	al, 1			; y &gt;&gt; 1 (其实是 y/BPB_NumHeads, 这里
+
+BPB_NumHeads=2)
+	mov	ch, al			; ch &lt;- 柱面号
+	and	dh, 1			; dh &amp; 1 = 磁头号
+	pop	bx			; 恢复 bx
+	; 至此, "柱面号, 起始扇区, 磁头号" 全部得到 ^^^^^^^^^^^^^^^^^^^^^^^^
+	mov	dl, [BS_DrvNum]		; 驱动器号 (0 表示 A 盘)
+.GoOnReading:
+	mov	ah, 2			; 读
+	mov	al, byte [bp-2]		; 读 al 个扇区
+	int	13h
+	jc	.GoOnReading		; 如果读取错误 CF 会被置为 1, 这时就不停地读, 直到
+
+正确为止
+
+	add	esp, 2
+	pop	bp
+
+	ret
+	
+;----------------------------------------------------------------------------
+; 函数名: GetFATEntry
+;----------------------------------------------------------------------------
+; 作用: ax
+;	
+GetFATEntry:
+	push bp
+	mov bp, sp
+	sub esp, 2
+	mov word [bp-2], 0
+	push es 
+	push bx
+	push dx
+	mov bx, 3
+	mul bx				;ax = ax * 3
+	mov bx, 2
+	div bx				;商在ax 余数在dx
+	cmp dx, 0
+	jz LABEL_EVEN			;偶数
+	mov word [bp-2], 1		;奇数
+LABEL_EVEN:
+	mov bx, ax
+	mov ax, BaseOfLoader
+	sub ax, FatOffset
+	mov es, ax
+	mov word ax, [es:bx]
+	cmp word [bp-2], 0
+	jz LABEL_EVEN_2
+	shr ax, 4
+LABEL_EVEN_2:
+	and ax, 0FFFh			;低十二位
+	pop dx
+	pop bx
+	pop es
+	add esp, 2
+	pop bp
+	ret
+times 510-($-$$) db 0			;填充剩余的空间，是生成的代码正好为512B
+dw	0xaa55				;结束标记	</pre>
+<p>&nbsp;编译命令：</p>
+<div id="" class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/clipboard_new.swf" flashvars="clipboard=nasm%20-I%20.%5Cinclude%5C%20boot1.asm%20-o%20boot.bin%0AWriteFlopy.exe" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" height="15" width="14">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_star.png" alt="收藏代码"><img class="spinner" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/spinner.gif" style="display: none;"></a></div></div><ol class="dp-j" start="1"><li><span><span>nasm&nbsp;-I&nbsp;.\include\&nbsp;boot1.asm&nbsp;-o&nbsp;boot.bin&nbsp;&nbsp;</span></span></li><li><span>WriteFlopy.exe&nbsp;&nbsp;</span></li></ol></div><pre title="FAT12文件格式" pre_index="7" source_url="http://sy198704.iteye.com/blog/1000764" codeable_type="Blog" codeable_id="1000764" style="display: none;" class="java" name="code">nasm -I .\include\ boot1.asm -o boot.bin
+WriteFlopy.exe</pre>
+<p>&nbsp;<a href="http://dl.dbank.com/c0cfd6zb77">WriteFlopy.exe</a>的功能是见生成的boot.bin文件写道虚拟软盘TINIX.IMG的引导扇区中，然后可以将该虚拟软盘挂载，向里面新建一个文件TEST.TXT然后写一些东西测试。</p>
+
+<p>&nbsp;</p>
+<p></p>
+<p>&nbsp;</p>
+  </div>
+
+  
+
+
+  
+  
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type="sina" href="javascript:;" title="分享到新浪微博"><img src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/sina.jpg"></a>
+      <a data-type="qq" href="javascript:;" title="分享到腾讯微博"><img src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="http://sy198704.iteye.com/blog/1003383" class="next" title="FFFF0h与07C00h(转)">FFFF0h与07C00h(转)</a>
+      |
+      <a href="http://sy198704.iteye.com/blog/1000688" class="pre" title="Orange's一个操作系统的实现学习(1)">Orange's一个操作系统的实现学习(1)</a>
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2011-04-13 10:29</li>
+      <li>浏览 1138</li>
+      <li><a href="#comments">评论(0)</a></li>
+      
+      
+      <li>分类:<a href="http://www.iteye.com/blogs/category/os">操作系统</a></li>      
+      <li class="last"><a href="http://www.iteye.com/wiki/blog/1000764" target="_blank" class="more">相关推荐</a></li>
+    </ul>
+  </div>
+
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="http://sy198704.iteye.com/login" style="background-color: white;"> <img src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/login_icon.png" style="vertical-align: middle; margin-right: 10px;"></a><a href="http://sy198704.iteye.com/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 1000764;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'FAT12文件格式');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'FAT12文件格式');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href="http://sy198704.iteye.com/"><img alt="sy198704的博客" class="logo" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/user-logo.gif" title="sy198704的博客: sy198704"></a></div>
+  <div id="blog_owner_name">sy198704</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 4367 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/icon_minigender_1.gif" title="男"></li>
+              <li>来自: 山东</li>
+              <li><img src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/offline.gif"></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style="font-weight:normal;font-size:12px;padding-left:30px;"><a href="http://sy198704.iteye.com/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://kanalun.iteye.com/" target="_blank"><img alt="kanalun的博客" class="logo" src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/user-logo-thumb.gif" title="kanalun的博客: "></a></div>
+                <div class="left"><a href="http://kanalun.iteye.com/" target="_blank" title="kanalun">kanalun</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="http://sy198704.iteye.com/">全部博客 (9)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/152431">操作系统 (5)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/152770">GObject (0)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/152772">骨骼动画 (0)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/153139">编译工具 (2)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/154447">Linux (1)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/154641">gentoo (0)</a></li>
+                
+                  <li><a href="http://sy198704.iteye.com/category/157655">OnlineJudge项目 (1)</a></li>
+                
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="http://sy198704.iteye.com/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="http://sy198704.iteye.com/blog/post">我的论坛</a> (0)
+                </li>
+                <li><a href="http://sy198704.iteye.com/blog/answered_problems">我的问答</a> (0)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="http://sy198704.iteye.com/blog/monthblog/2011-05">2011-05</a> (1)</li>
+                
+                  <li><a href="http://sy198704.iteye.com/blog/monthblog/2011-04">2011-04</a> (8)</li>
+                
+                <li><a href="http://sy198704.iteye.com/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+      </div>
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br>
+          © 2003-2012 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script><img src="FAT-12%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F_files/a.gif" height="0" width="0">
+
+    
+    
+  
+
+</body></html>
