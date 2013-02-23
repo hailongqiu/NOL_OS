@@ -1,0 +1,6 @@
+#os实践目录的执行文件
+#一个OS‘的实现的实践
+#和学习linux内核源码的实践
+cd /home/long/Desktop/source/NOL_OS/bochs
+bochs -f bochsrc
+

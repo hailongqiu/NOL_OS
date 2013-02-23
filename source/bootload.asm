@@ -6,8 +6,8 @@
 ; 
 
     BITS 16 ; 实模式
-
-    jmp short bootloader_start
+    org 0x7c00
+    jmp bootloader_start
     nop
 ; FAT-12 bpb等头信息才能被识别. 
 oem_name     db "DEEPIN" ; 厂商名
@@ -31,19 +31,29 @@ vol_label    db "NOLOS     " ;  卷标, 必须 11 个字节, 磁盘名称
 file_system_type    db "FAT12   " ; 文件系统类型
 ; 引导代码.
 bootloader_start:
-    mov ax, 0x7c0
-    cli
-    ;
-    sti
-    ; 数据段设置. 
-    mov ax, 0x7c0
+    ; 初始化 ss 栈段寄存器.
+    mov ax, 0
+    mov ss, ax
+    mov sp, 0x7c00 ; 栈的生长方向, 从高地址向低地址.
     mov ds, ax
-;
-; 需要加载的内核文件名.
-    ;kernel_filename db KERNEL_FILENAME
-
+    mov si, msg
+loop_str:
+    mov al, [si] ; al 字符.
+    add si, 1
+    cmp al, 0 ; 判断是否到了 db 0
+    je fin
+    mov ah, 0x0e ; 入口参数.
+    mov bx, 12 ; 0b 0000 1111 ; bh页码和bl前景色.
+    int 0x10 ; BIOS中断调用 int 10.
+    jmp loop_str
+fin:
+    hlt
+    jmp $
+msg:
+    db 0x0a, 0x0a ;换行两次
+    db "hello, world"
+    db 0x0a
+    db 0
 ;
     times 510 - ($ - $$) db 0
     dw 0xAA55
-
-buffer:
