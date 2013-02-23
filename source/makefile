@@ -10,7 +10,7 @@ test_kernel.sys : test_kernel.asm
 copy:
 	cp nol.img ../bochs
 dd:
-	dd if=boot.bin of=nol.img bs=512 count=1 conv=notrunc
+	dd if=boot.bin of=nol.ima bs=512 count=1 conv=notrunc
 clear:
 	rm boot.bin
 	rm boot.lst

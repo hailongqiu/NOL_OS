@@ -30,13 +30,13 @@
 00000000000i[     ]   SB16 support: no
 00000000000i[     ]   USB support: no
 00000000000i[     ]   VGA extension support: vbe 
-00000000000i[MEM0 ] allocated memory at 0xb4f65008. after alignment, vector=0xb4f66000
+00000000000i[MEM0 ] allocated memory at 0xb4f73008. after alignment, vector=0xb4f74000
 00000000000i[MEM0 ] 32.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=32
 00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/usr/local/share/bochs/BIOS-bochs-latest')
 00000000000i[MEM0 ] rom at 0xc0000/40448 ('vgabios-0.6c.bin')
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Sat Feb 23 15:04:55 2013 (time0=1361603095)
+00000000000i[CMOS ] Setting initial clock to: Sat Feb 23 16:31:09 2013 (time0=1361608269)
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[DMA  ] channel 2 used by Floppy Drive
 00000000000i[FDD  ] fd0: 'nol.ima' ro=0, h=2,t=80,spt=18
@@ -118,26 +118,26 @@
 00000821735i[BIOS ] bios_table_addr: 0x000fb928 end=0x000fcc00
 00000834412i[BIOS ] bios_table_cur_addr: 0x000fb928
 00012943046i[BIOS ] Booting from 0000:7c00
-00029648896i[CPU0 ] WARNING: HLT instruction with IF=0!
-289649815957i[     ] Ctrl-C detected in signal handler.
-289649815957i[     ] dbg: Quit
-289649815957i[CPU0 ] CPU is in real mode (halted)
-289649815957i[CPU0 ] CS.d_b = 16 bit
-289649815957i[CPU0 ] SS.d_b = 16 bit
-289649815957i[CPU0 ] | EAX=00000e00  EBX=0000000f  ECX=00000a01  EDX=00000000
-289649815957i[CPU0 ] | ESP=00007c00  EBP=00000000  ESI=000ec230  EDI=0000ffac
-289649815957i[CPU0 ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf ZF af PF cf
-289649815957i[CPU0 ] | SEG selector     base    limit G D
-289649815957i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
-289649815957i[CPU0 ] |  CS:0000( 0004| 0|  0) 00000000 0000ffff 0 0
-289649815957i[CPU0 ] |  DS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-289649815957i[CPU0 ] |  SS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-289649815957i[CPU0 ] |  ES:3500( 0005| 0|  0) 00035000 0000ffff 0 0
-289649815957i[CPU0 ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-289649815957i[CPU0 ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-289649815957i[CPU0 ] | EIP=0000c21c (0000c21c)
-289649815957i[CPU0 ] | CR0=0x60000010 CR2=0x00000000
-289649815957i[CPU0 ] | CR3=0x00000000 CR4=0x00000000
-289649815957i[CMOS ] Last time is 1361675507 (Sun Feb 24 11:11:47 2013)
-289649815957i[XGUI ] Exit
-289649815957i[CTRL ] quit_sim called with exit code 0
+00029649015i[CPU0 ] WARNING: HLT instruction with IF=0!
+01418771186i[     ] Ctrl-C detected in signal handler.
+01418771186i[     ] dbg: Quit
+01418771186i[CPU0 ] CPU is in real mode (halted)
+01418771186i[CPU0 ] CS.d_b = 16 bit
+01418771186i[CPU0 ] SS.d_b = 16 bit
+01418771186i[CPU0 ] | EAX=00000e00  EBX=0000000f  ECX=00000a01  EDX=00000000
+01418771186i[CPU0 ] | ESP=00007c00  EBP=00000000  ESI=000ec251  EDI=0000ffac
+01418771186i[CPU0 ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf ZF af PF cf
+01418771186i[CPU0 ] | SEG selector     base    limit G D
+01418771186i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
+01418771186i[CPU0 ] |  CS:0000( 0004| 0|  0) 00000000 0000ffff 0 0
+01418771186i[CPU0 ] |  DS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+01418771186i[CPU0 ] |  SS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+01418771186i[CPU0 ] |  ES:3500( 0005| 0|  0) 00035000 0000ffff 0 0
+01418771186i[CPU0 ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+01418771186i[CPU0 ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+01418771186i[CPU0 ] | EIP=0000c23d (0000c23d)
+01418771186i[CPU0 ] | CR0=0x60000010 CR2=0x00000000
+01418771186i[CPU0 ] | CR3=0x00000000 CR4=0x00000000
+01418771186i[CMOS ] Last time is 1361608623 (Sat Feb 23 16:37:03 2013)
+01418771186i[XGUI ] Exit
+01418771186i[CTRL ] quit_sim called with exit code 0
