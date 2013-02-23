@@ -54,7 +54,7 @@
     54                                  
     55 00000060 83C601                      add si, 1
     56 00000063 83FE05                      cmp si, 5
-    57 00000066 732E                        jae error ; si >= 5
+    57 00000066 7335                        jae error ; si >= 5
     58 00000068 B400                        mov ah, 0x00
     59 0000006A B200                        mov dl, 0x00
     60 0000006C CD13                        int 0x13
@@ -75,29 +75,33 @@
     75 0000008B 80C501                      add ch, 1
     76 0000008E 80FD0A                      cmp ch, CYLS
     77 00000091 72BD                        jb readloop
-    78                                  fin:
-    79 00000093 F4                          hlt
-    80 00000094 EBFD                        jmp fin
-    81                                  error:
-    82 00000096 BE[AB00]                    mov si, msg
-    83                                  loop_str:
-    84 00000099 8A04                        mov al, [si]
-    85 0000009B 83C601                      add si, 1
-    86 0000009E 3C00                        cmp al, 0
-    87 000000A0 74F1                        je fin ; 
-    88 000000A2 B40E                        mov ah, 0x0e
-    89 000000A4 BB0F00                      mov bx, 15
-    90 000000A7 CD10                        int 0x10
-    91 000000A9 EBEE                        jmp loop_str
-    92                                  
-    93                                  msg:
-    94 000000AB 0A0A                        db 0x0a, 0x0a
-    95 000000AD 6C6F6164206572726F-         db "load error..."
-    96 000000B6 722E2E2E           
-    97 000000BA 0A                          db 0x0a
-    98 000000BB 00                          db 0
-    99                                  CYLS equ  10 ; 常量
-   100                                      ;
-   101 000000BC 00<rept>                    times 510 - ($ - $$) db 0
-   102 000001FE 55AA                        dw 0xAA55
-   103                                  
+    78                                  
+    79 00000093 882EF00F                    mov [0x0ff0], ch
+    80 00000097 E9(00C2)                    jmp 0xc200
+    81                                      ;jmp error
+    82                                  fin:
+    83 0000009A F4                          hlt
+    84 0000009B EBFD                        jmp fin
+    85                                  error:
+    86 0000009D BE[B200]                    mov si, msg
+    87                                  loop_str:
+    88 000000A0 8A04                        mov al, [si]
+    89 000000A2 83C601                      add si, 1
+    90 000000A5 3C00                        cmp al, 0
+    91 000000A7 74F1                        je fin ; 
+    92 000000A9 B40E                        mov ah, 0x0e
+    93 000000AB BB0F00                      mov bx, 15
+    94 000000AE CD10                        int 0x10
+    95 000000B0 EBEE                        jmp loop_str
+    96                                  
+    97                                  msg:
+    98 000000B2 0A0A                        db 0x0a, 0x0a
+    99 000000B4 6C6F6164206572726F-         db "load error..."
+   100 000000BD 722E2E2E           
+   101 000000C1 0A                          db 0x0a
+   102 000000C2 00                          db 0
+   103                                  CYLS equ  10 ; 常量
+   104                                      ;
+   105 000000C3 00<rept>                    times 510 - ($ - $$) db 0
+   106 000001FE 55AA                        dw 0xAA55
+   107                                  
