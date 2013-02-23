@@ -30,16 +30,16 @@
 00000000000i[     ]   SB16 support: no
 00000000000i[     ]   USB support: no
 00000000000i[     ]   VGA extension support: vbe 
-00000000000i[MEM0 ] allocated memory at 0xb4fa9008. after alignment, vector=0xb4faa000
+00000000000i[MEM0 ] allocated memory at 0xb4f62008. after alignment, vector=0xb4f63000
 00000000000i[MEM0 ] 32.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=32
 00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/usr/local/share/bochs/BIOS-bochs-latest')
 00000000000i[MEM0 ] rom at 0xc0000/40448 ('vgabios-0.6c.bin')
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Sat Feb 23 09:10:33 2013 (time0=1361581833)
+00000000000i[CMOS ] Setting initial clock to: Sat Feb 23 13:30:59 2013 (time0=1361597459)
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[DMA  ] channel 2 used by Floppy Drive
-00000000000i[FDD  ] fd0: 'a.img' ro=0, h=2,t=80,spt=18
+00000000000i[FDD  ] fd0: 'nol.img' ro=0, h=2,t=80,spt=18
 00000000000i[VGA  ] interval=50000
 00000000000i[MEM0 ] Register memory access handlers: 0x00000000000a0000 - 0x00000000000bffff
 00000000000i[XGUI ] test_alloc_colors: 16 colors available out of 16 colors tried
@@ -118,26 +118,26 @@
 00000821735i[BIOS ] bios_table_addr: 0x000fb928 end=0x000fcc00
 00000834412i[BIOS ] bios_table_cur_addr: 0x000fb928
 00012943046i[BIOS ] Booting from 0000:7c00
-00012953473i[CPU0 ] WARNING: HLT instruction with IF=0!
-01318400003i[     ] Ctrl-C detected in signal handler.
-01318400004i[     ] dbg: Quit
-01318400004i[CPU0 ] CPU is in real mode (halted)
-01318400004i[CPU0 ] CS.d_b = 16 bit
-01318400004i[CPU0 ] SS.d_b = 16 bit
-01318400004i[CPU0 ] | EAX=00000e00  EBX=0000000c  ECX=00000000  EDX=00000000
-01318400004i[CPU0 ] | ESP=00007c00  EBP=00000000  ESI=000e7c6d  EDI=0000ffac
-01318400004i[CPU0 ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf ZF af PF cf
-01318400004i[CPU0 ] | SEG selector     base    limit G D
-01318400004i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
-01318400004i[CPU0 ] |  CS:0000( 0004| 0|  0) 00000000 0000ffff 0 0
-01318400004i[CPU0 ] |  DS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-01318400004i[CPU0 ] |  SS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-01318400004i[CPU0 ] |  ES:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-01318400004i[CPU0 ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-01318400004i[CPU0 ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-01318400004i[CPU0 ] | EIP=00007c5b (00007c5b)
-01318400004i[CPU0 ] | CR0=0x60000010 CR2=0x00000000
-01318400004i[CPU0 ] | CR3=0x00000000 CR4=0x00000000
-01318400004i[CMOS ] Last time is 1361582162 (Sat Feb 23 09:16:02 2013)
-01318400004i[XGUI ] Exit
-01318400004i[CTRL ] quit_sim called with exit code 0
+00029526157i[CPU0 ] WARNING: HLT instruction with IF=0!
+00503400003i[     ] Ctrl-C detected in signal handler.
+00503400008i[     ] dbg: Quit
+00503400008i[CPU0 ] CPU is in real mode (halted)
+00503400008i[CPU0 ] CS.d_b = 16 bit
+00503400008i[CPU0 ] SS.d_b = 16 bit
+00503400008i[CPU0 ] | EAX=00003500  EBX=00000000  ECX=00000a01  EDX=00000000
+00503400008i[CPU0 ] | ESP=00007c00  EBP=00000000  ESI=000e0000  EDI=0000ffac
+00503400008i[CPU0 ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf ZF af PF cf
+00503400008i[CPU0 ] | SEG selector     base    limit G D
+00503400008i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
+00503400008i[CPU0 ] |  CS:0000( 0004| 0|  0) 00000000 0000ffff 0 0
+00503400008i[CPU0 ] |  DS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00503400008i[CPU0 ] |  SS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00503400008i[CPU0 ] |  ES:3500( 0005| 0|  0) 00035000 0000ffff 0 0
+00503400008i[CPU0 ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00503400008i[CPU0 ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00503400008i[CPU0 ] | EIP=00007c94 (00007c94)
+00503400008i[CPU0 ] | CR0=0x60000010 CR2=0x00000000
+00503400008i[CPU0 ] | CR3=0x00000000 CR4=0x00000000
+00503400008i[CMOS ] Last time is 1361597584 (Sat Feb 23 13:33:04 2013)
+00503400008i[XGUI ] Exit
+00503400008i[CTRL ] quit_sim called with exit code 0
