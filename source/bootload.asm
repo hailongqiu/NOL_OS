@@ -3,7 +3,6 @@
 ;
 ;
 ;
-; 
 
     BITS 16 ; 实模式
     org 0x7c00
@@ -36,24 +35,67 @@ bootloader_start:
     mov ss, ax
     mov sp, 0x7c00 ; 栈的生长方向, 从高地址向低地址.
     mov ds, ax
-    mov si, msg
-loop_str:
-    mov al, [si] ; al 字符.
+    ; 读取盘.
+    mov ax, 0x0820
+    mov es, ax
+    mov ch, 0 ; 柱面 0
+    mov dh, 0 ; 磁头 0 
+    mov cl, 2 ; 扇区 2
+readloop:
+    mov si, 0
+retry:
+    mov ah, 0x2 ; 读盘
+    mov al, 1 ; 处理的扇区数
+    mov bx, 0
+    mov dl, 0x00 ; 驱动号
+    int 0x13
+    jnc next
+
     add si, 1
-    cmp al, 0 ; 判断是否到了 db 0
-    je fin
-    mov ah, 0x0e ; 入口参数.
-    mov bx, 12 ; 0b 0000 1111 ; bh页码和bl前景色.
-    int 0x10 ; BIOS中断调用 int 10.
-    jmp loop_str
+    cmp si, 5
+    jae error ; si >= 5
+    mov ah, 0x00
+    mov dl, 0x00
+    int 0x13
+    jmp retry
+
+next:
+    mov ax, es 
+    add ax, 0x0020
+    mov es, ax
+    add cl, 1
+    cmp cl, 18
+    jbe readloop
+    mov cl, 1
+    add dh, 1
+    cmp dh, 2
+    jb readloop
+    mov dh, 0
+    add ch, 1
+    cmp ch, CYLS
+    jb readloop
 fin:
     hlt
-    jmp $
+    jmp fin
+error:
+    mov si, msg
+loop_str:
+    mov al, [si]
+    add si, 1
+    cmp al, 0
+    je fin ; 
+    mov ah, 0x0e
+    mov bx, 15
+    int 0x10
+    jmp loop_str
+
 msg:
-    db 0x0a, 0x0a ;换行两次
-    db "hello, world"
+    db 0x0a, 0x0a
+    db "load error..."
     db 0x0a
     db 0
-;
+CYLS equ  10 ; 常量
+    ;
     times 510 - ($ - $$) db 0
     dw 0xAA55
+
