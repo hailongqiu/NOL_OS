@@ -75,7 +75,7 @@ next:
     cmp ch, CYLS
     jb readloop
 
-    mov [0x0ff0], ch
+    mov [0x0ff0], ch ;保存读了多少个柱面.
     jmp 0xc200
     ;jmp error
 fin:

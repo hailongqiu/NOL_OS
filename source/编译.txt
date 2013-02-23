@@ -1,0 +1,3 @@
+
+nasm -f bin header.asm -o header.bin
+nasm -f elf test_asm.asm -o test_asm.o
