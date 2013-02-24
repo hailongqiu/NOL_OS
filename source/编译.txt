@@ -1,3 +1,21 @@
 
+bjcopy  -I elf32-littlearm -O binary test test.bin
 nasm -f bin header.asm -o header.bin
 nasm -f elf test_asm.asm -o test_asm.o
+gcc -I include/ -c -fno-builtin -o test_function.o test_function.c
+
+提供下面两种方法编译生成一个没有格式的二进制文件：
+1. 
+
+　　gcc -c test.c 
+
+　　ld -o test -Ttext 0x0 -e main test.o
+
+　　objcopy -R .note -R .comment -S -O binary test test.bin
+
+2.
+　　gcc -c test.c 
+
+　　ld test.o -o test.bin -Ttext 0x0 -e main -oformat binary
+
+

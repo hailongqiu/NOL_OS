@@ -123,7 +123,7 @@ msg:
 
 ; GDT0 .
 GDT0: 
-    dw 0x0000, 0x0000, 0x0000, 0x0000 ; gdt 空白 这是规定.
+    dw 0x0000, 0x0000, 0x0000, 0x0000 ; gdt 第0项空白 这是规定.
 GDT0_KERNEL_DATA: ; 非一致性-数据段描述符, 可读/写.
     dw 0xffff ; 段限长公式: 段界限(4G) = limit(0xFFFFF) * 4k + 0FFFFh ; 4k=1000H
     dw 0x0000 ; 基地址 ( Base addres : 00 )
@@ -139,4 +139,6 @@ GDTR0:
     dd GDT0  ; 32位线性地址.
 
 bootpack:
+
+
     
