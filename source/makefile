@@ -1,11 +1,8 @@
 NASM = nasm
 
 
-boot.bin : bootload.asm 
-	$(NASM) bootload.asm -o boot.bin -l boot.lst
-
-test_kernel.sys : test_kernel.asm 
-	$(NASM) -f bin test_kernel.asm -o test_kernel.sys -l test_kernel.lst
+boot.bin : boot.asm 
+	$(NASM) boot.asm -o boot.bin -l boot.lst
 
 copy:
 	cp nol.img ../bochs

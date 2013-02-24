@@ -30,13 +30,13 @@
 00000000000i[     ]   SB16 support: no
 00000000000i[     ]   USB support: no
 00000000000i[     ]   VGA extension support: vbe 
-00000000000i[MEM0 ] allocated memory at 0xb4f3c008. after alignment, vector=0xb4f3d000
+00000000000i[MEM0 ] allocated memory at 0xb4f5d008. after alignment, vector=0xb4f5e000
 00000000000i[MEM0 ] 32.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=32
 00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/usr/local/share/bochs/BIOS-bochs-latest')
 00000000000i[MEM0 ] rom at 0xc0000/40448 ('vgabios-0.6c.bin')
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Sun Feb 24 12:18:01 2013 (time0=1361679481)
+00000000000i[CMOS ] Setting initial clock to: Mon Feb 25 05:13:41 2013 (time0=1361740421)
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[DMA  ] channel 2 used by Floppy Drive
 00000000000i[FDD  ] fd0: 'nol.ima' ro=0, h=2,t=80,spt=18
@@ -118,23 +118,89 @@
 00000821735i[BIOS ] bios_table_addr: 0x000fb928 end=0x000fcc00
 00000834412i[BIOS ] bios_table_cur_addr: 0x000fb928
 00012943046i[BIOS ] Booting from 0000:7c00
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
-00029604000i[     ] Ctrl-C detected in signal handler.
+00029649015i[CPU0 ] WARNING: HLT instruction with IF=0!
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
+03523108000i[     ] Ctrl-C detected in signal handler.
